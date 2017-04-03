@@ -1,0 +1,3 @@
+include requirements.txt
+include napalm_netiron/templates/*.j2
+include napalm_netiron/utils/textfsm_templates/*.tpl
