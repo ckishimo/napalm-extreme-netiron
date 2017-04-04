@@ -19,6 +19,7 @@ from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
 from napalm_base.exceptions import ConnectionException, MergeConfigException, \
     ReplaceConfigException, SessionLockedException, CommandErrorException
+import napalm_base.helpers
 
 import os
 import re
@@ -87,15 +88,15 @@ class NetironDriver(NetworkDriver):
         arp_cmd = 'show arp'
         output = self.device.send_command(arp_cmd)
         output = output.split('\n')
-
         output = output[7:]
-        print(output)
 
         for line in output:
-            if len(line) == 0:
+            fields = line.split()
+
+            if len(fields) == 0:
                 return {}
-            if len(line.split()) == 6:
-                num, address, mac, typ, age, interface = line.split()
+            if len(fields) == 6:
+                num, address, mac, typ, age, interface = fields
                 try:
                     if age == 'None':
                         age = 0
@@ -107,6 +108,8 @@ class NetironDriver(NetworkDriver):
 
                 if "None" in mac:
                     mac = "00:00:00:00:00:00"
+                else:
+                    mac = napalm_base.helpers.mac(mac)
 
                 entry = {
                     'interface': interface,
