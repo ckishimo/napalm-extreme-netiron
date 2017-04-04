@@ -287,34 +287,32 @@ class NetironDriver(NetworkDriver):
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
 
+
         mac_address_table = []
-        lines = lines[6:]
+        lines = lines[5:]
 
         for line in lines:
             fields = line.split()
 
             if len(line) == 0:
                 return {}
-            if len(fields) == 5:
-                mac_address, port, age, vlan, typ = fields
-            elif len(fields) == 4:
-                typ = "dynamic"
+            if len(fields) == 4:
                 mac_address, port, age, vlan = fields
             else:
                 raise ValueError(
                     "Unexpected output from: {}".format(line.split()))
             
-            if 'Static' in age:
-                typ = "static"
-                age = 0
+            is_static = bool('Static' in age)
+            mac_address = napalm_base.helpers.mac(mac_address)
 
-            # FIXME: Need other keys according to http://napalm.readthedocs.io/en/latest/base.html
             entry = {
+               'mac': mac_address,
+               'interface1': port,
                'vlan': vlan,
-               'mac_address': mac_address,
-               'age': age,
-               'type': typ,
-               'port': port
+               'active': None,
+               'static': is_static,
+               'moves': None,
+               'last_move': None
             }
             mac_address_table.append(entry)
             
