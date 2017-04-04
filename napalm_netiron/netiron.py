@@ -387,14 +387,14 @@ class NetironDriver(NetworkDriver):
 
             if len(fields) == 5:
                 local_port, chassis, portid, portdesc, name = fields
-
+                # Systame name may be truncated, so get the complete name from the detailed output
                 lldp_detail = self._lldp_detail_parser(local_port)
             
-            entry = {
-                'port': lldp_detail[0], 
-                'hostname': lldp_detail[3]
-            }
-            lldp[local_port] = entry
+                entry = {
+                   'port': lldp_detail[1], 
+                   'hostname': lldp_detail[3]
+                }
+                lldp[local_port] = entry
 
         return lldp
 
