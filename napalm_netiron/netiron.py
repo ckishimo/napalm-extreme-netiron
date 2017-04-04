@@ -422,7 +422,7 @@ class NetironDriver(NetworkDriver):
                     'remote_system_name': lldp_detail[3],
                     'remote_system_description': u'N/A',
                     'remote_system_capab': lldp_detail[4],
-                    'remote_system_enable_capab': lldp_detail[5]
+                    'remote_system_enabled_capab': lldp_detail[5]
                 }
                 if local_port == interface:
                     return {interface: lldp[local_port]}
