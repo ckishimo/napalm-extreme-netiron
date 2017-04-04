@@ -344,13 +344,14 @@ class NetironDriver(NetworkDriver):
                     "remote": ip,
                     "referenceid": ref,
                     "synchronized": bool(synch),
-                    "stratum": st,
+                    "stratum": int(st),
                     "when": when,
-                    "poll": poll,
-                    "reachability": reach,
+                    "type": None,
+                    "poll": int(poll),
+                    "reachability": int(reach),
                     "delay": float(delay),
                     "offset": float(offset),
-                    "disp": float(disp)
+                    "jitter": float(disp)
                 })
 
         return ntp_stats
