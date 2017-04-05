@@ -249,37 +249,55 @@ class NetironDriver(NetworkDriver):
  
     def get_interfaces_counters(self):
 
-        # FIXME: Missing counters, according to http://napalm.readthedocs.io/en/latest/base.html
-        cmd = "show statistics brief"
+        cmd = "show statistics"
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
 
-        counters_table = []
-        lines = lines[3:]
-
+        counters = {}
         for line in lines:
-            fields = line.split()
-
-            if len(line) == 0:
-                return {}
-            if len(fields) == 7:
-                interface, pkts_rx, pkts_tx, col_rx, col_tx, err_rx, err_tx = fields
-                entry = {
-                    'interface': interface,
-                    'pkts_rx': pkts_rx,
-                    'pkts_tx': pkts_tx,
-                    'col_rx': col_rx,
-                    'col_tx': col_tx,
-                    'err_rx': err_rx,
-                    'err_tx': err_tx
-                }
-                counters_table.append(entry)
-
+            port_block = re.search('\s*PORT (\S+) Counters:.*', line)
+            if port_block:
+                interface = port_block.group(1)
+                counters.setdefault(interface, {})
+            elif len(line)==0:
+                continue
             else:
-                raise ValueError(
-                    "Unexpected output from: {}".format(line.split()))
+                octets = re.search(r"\s+InOctets\s+(\d+)\s+OutOctets\s+(\d+)\.*", line)
+                if octets:
+                   counters[interface]['rx_octets'] =  int(octets.group(1))
+                   counters[interface]['tx_octets'] =  int(octets.group(2))
+                   continue
 
-        return counters_table
+                packets = re.search(r"\s+InPkts\s+(\d+)\s+OutPkts\s+(\d+)\.*", line)
+                if packets:
+                   counters[interface]['rx_unicast_packets'] = int(packets.group(1))
+                   counters[interface]['tx_unicast_packets'] = int(packets.group(2))
+                   continue
+
+                broadcast = re.search(r"\s+InBroadcastPkts\s+(\d+)\s+OutBroadcastPkts\s+(\d+)\.*", line)
+                if broadcast:
+                   counters[interface]['rx_broadcast_packets'] = int(broadcast.group(1))
+                   counters[interface]['tx_broadcast_packets'] = int(broadcast.group(2))
+                   continue
+
+                multicast = re.search(r"\s+InMulticastPkts\s+(\d+)\s+OutMulticastPkts\s+(\d+)\.*", line)
+                if multicast:
+                   counters[interface]['rx_multicast_packets'] = int(multicast.group(1))
+                   counters[interface]['tx_multicast_packets'] = int(multicast.group(2))
+                   continue
+
+                error = re.search(r"\s+InErrors\s+(\d+)\s+OutErrors\s+(\d+)\.*", line)
+                if error:
+                   counters[interface]['rx_errors'] = int(error.group(1))
+                   counters[interface]['tx_errors'] = int(error.group(2))
+                   continue
+
+                discard = re.search(r"\s+InDiscards\s+(\d+)\s+OutDiscards\s+(\d+)\.*", line)
+                if discard:
+                   counters[interface]['rx_discards'] = int(discard.group(1))
+                   counters[interface]['tx_discards'] = int(discard.group(2))
+
+        return counters
 
     def get_mac_address_table(self):
 
