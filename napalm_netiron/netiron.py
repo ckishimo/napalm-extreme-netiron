@@ -461,3 +461,26 @@ class NetironDriver(NetworkDriver):
             _cmd = 'show configuration'
             config['startup'] = self.cli([_cmd]).get(_cmd)
         return config
+
+    def get_users(self):
+        
+        command = 'show users'
+        lines = self.send_command(command)
+        lines = lines.split("\n")
+
+        lines = lines[2:]
+        info = {}
+        for line in lines:
+            match = re.match("(\S+)\s+(\S+)\s+(\S+)\s+(\d+)", line)
+            if match:
+                user  = match.group(1)
+                passw = match.group(2)
+                level = match.group(3)
+
+                info[user] = {
+                   'level': level,
+                   'password': passw,
+                   'sshkeys': list()
+                }
+
+        return info
