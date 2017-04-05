@@ -335,6 +335,27 @@ class NetironDriver(NetworkDriver):
             mac_address_table.append(entry)
             
         return mac_address_table
+
+    def get_ntp_servers(self):
+
+        output = self.device.send_command("show ntp associations")
+        output = output.split("\n")
+
+        ntp = {}
+        output = output[1:-1]
+
+        for line in output:
+            fields = line.split()
+            if len(line) == 0:
+                return {}
+           
+            #match = re.search("\s*(\d+)\.(\d+)\.(\d+)\.(\d+).*", line)
+            match = re.search("\s*([1-9.]+).*", line)
+            if match:
+                server = match.group(1)
+                ntp[server] = { }
+
+        return ntp
             
     def get_ntp_stats(self):
 
