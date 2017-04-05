@@ -428,3 +428,18 @@ class NetironDriver(NetworkDriver):
                     return {interface: lldp[local_port]}
 
         return lldp
+
+    def get_config(self, retrieve='all'):
+        config = {
+            'startup': '',
+            'running': '',
+            'candidate': ''
+        }  # default values
+
+        if retrieve.lower() in ('running', 'all'):
+            _cmd = 'show running-config'
+            config['running'] = self.cli([_cmd]).get(_cmd)
+        if retrieve.lower() in ('startup', 'all'):
+            _cmd = 'show configuration'
+            config['startup'] = self.cli([_cmd]).get(_cmd)
+        return config
