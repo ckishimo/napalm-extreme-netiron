@@ -1,7 +1,0 @@
-ntp
- disable serve
- source-interface ve 280
- server 192.168.16.69
- server 192.168.17.69
- peer 1.1.1.1
-!
