@@ -1,0 +1,4 @@
+   address         ref clock      st  when  poll reach  delay   offset  disp
+*~192.168.16.69   172.18.16.69     2     1    64     1  0.551  -0.0062 3937.5
+ ~192.168.17.69   172.18.17.69     2     -    64     0   0.00    0.000 16000.
+* synced, # selected, + candidate, - outlayer, x falseticker, ~ configured

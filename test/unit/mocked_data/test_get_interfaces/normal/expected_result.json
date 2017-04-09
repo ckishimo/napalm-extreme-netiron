@@ -1,0 +1,67 @@
+{
+    "1/1": {
+        "description": "", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "last_flapped": 300466.0, 
+        "mac_address": "0024.388a.ac00", 
+        "speed": 10000
+    }, 
+    "1/2": {
+        "description": "connection1", 
+        "is_enabled": false, 
+        "is_up": false, 
+        "last_flapped": 298361.0, 
+        "mac_address": "0024.388a.ac00", 
+        "speed": 10000
+    }, 
+    "1/3": {
+        "description": "connection2", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "last_flapped": 298398.0,
+        "mac_address": "0024.388a.ac00", 
+        "speed": 10000
+    }, 
+    "1/4": {
+        "description": "", 
+        "is_enabled": false, 
+        "is_up": false, 
+        "last_flapped": 298421.0, 
+        "mac_address": "0024.388a.ac03", 
+        "speed": 10000
+    }, 
+    "1/5": {
+        "description": "", 
+        "is_enabled": false, 
+        "is_up": false, 
+        "last_flapped": 298445.0, 
+        "mac_address": "0024.388a.ac04", 
+        "speed": 10000
+    }, 
+    "1/6": {
+        "description": "", 
+        "is_enabled": false, 
+        "is_up": false, 
+        "last_flapped": 298470.0, 
+        "mac_address": "0024.388a.ac05", 
+        "speed": 10000
+    }, 
+    "1/7": {
+        "description": "", 
+        "is_enabled": false, 
+        "is_up": false, 
+        "last_flapped": 298491.0, 
+        "mac_address": "0024.388a.ac06", 
+        "speed": 10000
+    }, 
+    "1/8": {
+        "description": "test", 
+        "is_enabled": true, 
+        "is_up": false, 
+        "last_flapped": 298509.0, 
+        "mac_address": "0024.388a.ac00", 
+        "speed": 10000
+    }
+}
+

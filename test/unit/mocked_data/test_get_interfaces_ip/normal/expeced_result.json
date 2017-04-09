@@ -1,0 +1,45 @@
+{
+    "loopback1": {
+        "ip_address": "172.24.46.10", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "loopback2": {
+        "ip_address": "10.90.1.1", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "ve239": {
+        "ip_address": "172.24.32.170", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "ve240": {
+        "ip_address": "172.24.32.174", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "ve241": {
+        "ip_address": "128.142.224.1", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "ve280": {
+        "ip_address": "192.168.61.10", 
+        "is_enabled": true, 
+        "is_up": true, 
+        "vrf": "default-vrf"
+    }, 
+    "ve4088": {
+        "ip_address": "172.24.112.9", 
+        "is_enabled": true, 
+        "is_up": false, 
+        "vrf": "default-vrf"
+    }
+}
+

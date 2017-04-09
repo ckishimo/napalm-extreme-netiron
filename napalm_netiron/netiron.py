@@ -11,9 +11,10 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-""" Extreme-Netiron Driver 
+""" 
+  Extreme-Netiron Driver 
 
-This driver provides support for Netiron MLXe routers
+  This driver provides support for Netiron MLXe routers
 """
 from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
@@ -56,10 +57,10 @@ class NetironDriver(NetworkDriver):
                                           % (self.hostname, self.port))
 
     def close(self):
-        #self.device.disconnect()
+        self.device.disconnect()
         return
 
-    def cli(self, commands=None):
+    def cli(self, commands):
         cli_output = dict()
 
         if type(commands) is not list:
@@ -75,15 +76,9 @@ class NetironDriver(NetworkDriver):
 
         return cli_output
 
-    def send_command(self, cmd):
-        output = self.device.send_command(cmd)
-        if 'Invalid input' in output:
-            raise ValueError('Unable to execute command "{}"'.format(cmd))
-        return output
-
     def get_arp_table(self):
 
-        arp_table = []
+        arp_table = list()
 
         arp_cmd = 'show arp'
         output = self.device.send_command(arp_cmd)
@@ -93,8 +88,6 @@ class NetironDriver(NetworkDriver):
         for line in output:
             fields = line.split()
 
-            if len(fields) == 0:
-                return {}
             if len(fields) == 6:
                 num, address, mac, typ, age, interface = fields
                 try:
@@ -118,91 +111,42 @@ class NetironDriver(NetworkDriver):
                     'age': age
                 }
                 arp_table.append(entry)
-            else:
-                raise ValueError(
-                    "Unexpected output from: {}".format(line.split()))
 
         return arp_table
 
-    def get_vlan_table(self):
-        """ FIXME: not officially supported """
+    def _parse_port_change(self, last_str):
 
-        vlan_table = []
+		#(3 days 11:27:46 ago)	
+        r1 = re.match("(\d+) days (\d+):(\d+):(\d+)", last_str)
+        if r1:
+        	days = int(r1.group(1))
+        	hours = int(r1.group(2))
+        	mins = int(r1.group(3))
+        	secs = int(r1.group(4))
 
-        vlan_cmd = 'show vlan'
-        output = self.device.send_command(vlan_cmd)
-        output = output.split('\n')
-
-        for line in output:
-            if len(line) == 0:
-                continue
-
-            r1 = re.match("^PORT-VLAN\s+(\d+), Name\s+(\S+),\s+(.*)", line)
-            if r1:
-                entry = {
-                    'vlan': r1.group(1),
-                    'name': r1.group(2)
-                }
-                vlan_table.append(entry)
-
-        return vlan_table
-
-    def get_interfaces_ip(self):
-        
-        interface_list = {}
-
-        iface_cmd = 'show ip interface'
-        output = self.device.send_command(iface_cmd)
-        output = output.split('\n')
-        output = output[2:]
-
-        for line in output:
-            fields = line.split()
-
-            if len(fields) == 8:
-                interface_type, interface, ip_address, status, method, status2, protocol, vrf = fields
-            else:
-                raise ValueError(u"Unexpected Response from the device")
-
-            protocol = protocol.lower()
-            is_up = bool('up' in protocol)
-
-            status = status.lower()
-            if 'admin' in status:
-                is_enabled = False
-            else:
-                is_enabled = True
-
-            interface_list[interface_type + interface] = {
-                'is_up': is_up,
-                'is_enabled': is_enabled,
-                'ip_address': ip_address,
-                'vrf': vrf
-            }
-        
-        return interface_list
+        	return float(secs + (mins*60) + (hours*60*60) + (days*24*60*60))
+        else:
+        	return (float(-1.0))
 
     def _get_interface_detail(self, port):
 
         command = "show interface ethernet {}".format(port)
-        output = self.send_command(command)
+        output = self.device.send_command(command)
 
-        # Port state change time: Jan  5 11:06:13  (88 days 04:42:52 ago)
-        # FIXME: Convert string into int secs
-        last_flap = re.search(r"\s+Port state change time: (.*)", output).group(1)
+        last_flap = re.search(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", output).group(1)
+        last_flap = self._parse_port_change(last_flap)
         if re.search(r"\s+No port name", output, re.MULTILINE):
-            description = "NA"
+            description = ""
         else:
             description = re.search(r"\s+Port name is (.*)", output, re.MULTILINE).group(1)
-        # FIXME TBC: Configured speed or hardware speed
-        # FIXME: Convert speed in int Mbit
-        speed, mac = re.search(r"\s+Hardware is (\S+), address is (\S+) (.+)", output).group(1,2)
+        mac = re.search(r"\s+Hardware is \S+, address is (\S+) (.+)", output).group(1)
+        speed = re.search(r"\s+Configured speed (\d+)Gbit,.+", output).group(1)
+        speed = int(speed)*1000
 
         return [last_flap, description, speed, mac]
 
     def get_interfaces(self):
 
-        # FIXME: Only physical interfaces (?)
         interface_list = {}
 
         iface_cmd = 'show interface brief wide'
@@ -213,12 +157,9 @@ class NetironDriver(NetworkDriver):
         for line in output:
             fields = line.split()
 
-            print(fields)
             if len(line) == 0:
                 continue
-            elif len(fields) == 6:
-                port, link, state, speed, tag, mac = fields
-            elif len(fields) >= 7:
+            elif len(fields) >= 6:
                 port, link, state, speed, tag, mac = fields[:6]
             else:
                 raise ValueError(u"Unexpected Response from the device")
@@ -229,21 +170,18 @@ class NetironDriver(NetworkDriver):
                 continue
 
             state = state.lower()
-            is_up = bool('up' in state)
+            is_up = bool('forward' in state)
 
             link = link.lower()
-            if 'disable' in link:
-                is_enabled = False
-            else:
-                is_enabled = True
+            is_enabled = not bool('disabled' in link)
 
             interface_list[port] = {
                 'is_up': is_up,
                 'is_enabled': is_enabled,
-                'description': port_detail[1],
-                'last_flapped': port_detail[0],
-                'speed': port_detail[2],
-                'mac_address': port_detail[3],
+                'description': unicode(port_detail[1]),
+                'last_flapped': float(port_detail[0]),
+                'speed': int(port_detail[2]),
+                'mac_address': unicode(port_detail[3]),
             }
         return interface_list
  
@@ -305,58 +243,31 @@ class NetironDriver(NetworkDriver):
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
 
-
         mac_address_table = []
         lines = lines[5:]
 
         for line in lines:
             fields = line.split()
 
-            if len(line) == 0:
-                return {}
             if len(fields) == 4:
                 mac_address, port, age, vlan = fields
-            else:
-                raise ValueError(
-                    "Unexpected output from: {}".format(line.split()))
             
-            is_static = bool('Static' in age)
-            mac_address = napalm_base.helpers.mac(mac_address)
+                is_static = bool('Static' in age)
+                mac_address = napalm_base.helpers.mac(mac_address)
 
-            entry = {
-               'mac': mac_address,
-               'interface1': port,
-               'vlan': vlan,
-               'active': None,
-               'static': is_static,
-               'moves': None,
-               'last_move': None
-            }
-            mac_address_table.append(entry)
+                entry = {
+                   'mac': mac_address,
+                   'interface': unicode(port),
+                   'vlan': int(vlan),
+                   'active': bool(1),
+                   'static': is_static,
+                   'moves': -1,
+                   'last_move': float(-1)
+                }
+                mac_address_table.append(entry)
             
         return mac_address_table
-
-    def get_ntp_servers(self):
-
-        output = self.device.send_command("show ntp associations")
-        output = output.split("\n")
-
-        ntp = {}
-        output = output[1:-1]
-
-        for line in output:
-            fields = line.split()
-            if len(line) == 0:
-                return {}
-           
-            #match = re.search("\s*(\d+)\.(\d+)\.(\d+)\.(\d+).*", line)
-            match = re.search("\s*([1-9.]+).*", line)
-            if match:
-                server = match.group(1)
-                ntp[server] = { }
-
-        return ntp
-            
+	           
     def get_ntp_stats(self):
 
         output = self.device.send_command("show ntp associations")
@@ -380,13 +291,13 @@ class NetironDriver(NetworkDriver):
                 when = when if when != '-' else 0
 
                 ntp_stats.append({
-                    "remote": ip,
-                    "referenceid": ref,
+                    "remote": unicode(ip),
+                    "referenceid": unicode(ref),
                     "synchronized": bool(synch),
                     "stratum": int(st),
-                    "when": when,
-                    "type": None,
-                    "poll": int(poll),
+                    "when": int(when),
+                    "type": unicode("NA"),
+                    "hostpoll": int(poll),
                     "reachability": int(reach),
                     "delay": float(delay),
                     "offset": float(offset),
@@ -399,7 +310,7 @@ class NetironDriver(NetworkDriver):
         """ Parse a single detailed entry """
 
         command = "show lldp neighbors detail ports eth {}".format(interface)
-        output = self.send_command(command)
+        output = self.device.send_command(command)
 
         chassis_id = re.search(r"\s+\+ Chassis ID \(MAC address\): (\S+)", output).group(1)
         port_id = re.search(r"\s+\+ Port ID \(MAC address\): (\S+)", output, re.MULTILINE).group(1)
@@ -416,7 +327,7 @@ class NetironDriver(NetworkDriver):
 
         lldp = {}
         command = 'show lldp neighbors'
-        lines = self.send_command(command)
+        lines = self.device.send_command(command)
         lines = lines.split("\n")
 
         lines = lines[2:]
@@ -426,14 +337,15 @@ class NetironDriver(NetworkDriver):
 
             if len(fields) == 5:
                 local_port, chassis, portid, portdesc, name = fields
-                # Systame name may be truncated, so get the complete name from the detailed output
+                # Sys name name may be truncated, so get the complete name from the detailed output
                 lldp_detail = self._lldp_detail_parser(local_port)
             
                 entry = {
-                   'port': lldp_detail[1], 
-                   'hostname': lldp_detail[3]
+                   'port': unicode(lldp_detail[1]),
+                   'hostname': unicode(lldp_detail[3])
                 }
-                lldp[local_port] = entry
+                lldp.setdefault(local_port, [])	
+                lldp[local_port].append(entry)
 
         return lldp
 
@@ -441,7 +353,7 @@ class NetironDriver(NetworkDriver):
 
         lldp = {}
         command = 'show lldp neighbors'
-        lines = self.send_command(command)
+        lines = self.device.send_command(command)
         lines = lines.split("\n")
 
         lines = lines[2:]
@@ -453,40 +365,45 @@ class NetironDriver(NetworkDriver):
                 local_port, chassis, portid, portdesc, name = fields
 
                 lldp_detail = self._lldp_detail_parser(local_port)   
-                lldp[local_port] = {
+                entry = {
                     'parent_interface': u'N/A',
-                    'remote_port': lldp_detail[0],
-                    'remote_port_description': lldp_detail[1],
-                    'remote_chassis_id': lldp_detail[2],
-                    'remote_system_name': lldp_detail[3],
+                    'remote_port': unicode(lldp_detail[0]),
+                    'remote_port_description': unicode(lldp_detail[1]),
+                    'remote_chassis_id': unicode(lldp_detail[2]),
+                    'remote_system_name': unicode(lldp_detail[3]),
                     'remote_system_description': u'N/A',
-                    'remote_system_capab': lldp_detail[4],
-                    'remote_system_enabled_capab': lldp_detail[5]
+                    'remote_system_capab': unicode(lldp_detail[4]),
+                    'remote_system_enable_capab': unicode(lldp_detail[5])
                 }
+
                 if local_port == interface:
                     return {interface: lldp[local_port]}
+
+                lldp.setdefault(local_port, [])	
+                lldp[local_port].append(entry)
 
         return lldp
 
     def get_config(self, retrieve='all'):
+        
         config = {
             'startup': '',
             'running': '',
-            'candidate': ''
-        }  # default values
+            'candidate': unicode('')
+        }
 
         if retrieve.lower() in ('running', 'all'):
             _cmd = 'show running-config'
-            config['running'] = self.cli([_cmd]).get(_cmd)
+            config['running'] = unicode(self.cli([_cmd]).get(_cmd))
         if retrieve.lower() in ('startup', 'all'):
             _cmd = 'show configuration'
-            config['startup'] = self.cli([_cmd]).get(_cmd)
+            config['startup'] = unicode(self.cli([_cmd]).get(_cmd))
         return config
 
     def get_users(self):
         
         command = 'show users'
-        lines = self.send_command(command)
+        lines = self.device.send_command(command)
         lines = lines.split("\n")
 
         lines = lines[2:]
@@ -496,12 +413,13 @@ class NetironDriver(NetworkDriver):
             if match:
                 user  = match.group(1)
                 passw = match.group(2)
-                level = match.group(3)
+                level = match.group(4)
 
                 info[user] = {
-                   'level': level,
+                   'level': int(level),
                    'password': passw,
                    'sshkeys': list()
                 }
 
         return info
+

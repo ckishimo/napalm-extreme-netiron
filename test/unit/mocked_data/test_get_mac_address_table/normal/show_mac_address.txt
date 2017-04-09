@@ -1,0 +1,8 @@
+Total active entries from all ports = 6
+Type Code - ST:Static SEC:Secure 1x:Dot1x NA: NotAvail A:Allow D:Deny
+CCL: Cluster Client Local CCR:Cluster Client Remote CL:Local CR:Remote
+
+MAC Address     Port      Age      VLAN    Type
+609c.9fd6.1500   3/3         0       280	
+609c.9fd5.f580   3/2         0       280	
+0011.2222.3333   3/3    Static       280

@@ -1,0 +1,52 @@
+
+PORT 1/1 Counters:
+         InOctets             178432           OutOctets           17560883
+           InPkts               2788             OutPkts             215953
+  InBroadcastPkts                  0    OutBroadcastPkts             154484
+  InMulticastPkts                  0    OutMulticastPkts              58090
+    InUnicastPkts               2788      OutUnicastPkts               3379
+       InDiscards                  0         OutDiscards                  0
+         InErrors                  0           OutErrors                  0
+     InCollisions                  0       OutCollisions                  0
+                                       OutLateCollisions                  0
+        Alignment                  0                 FCS                  0
+   InFlowCtrlPkts                  0     OutFlowCtrlPkts                  0
+        GiantPkts                  0           ShortPkts                  0
+     InBitsPerSec                  0       OutBitsPerSec                  0
+     InPktsPerSec                  0       OutPktsPerSec                  0
+    InUtilization               0.0%      OutUtilization               0.0%
+
+PORT 1/2 Counters:
+         InOctets       125785652186           OutOctets       568568238030
+           InPkts           97881699             OutPkts          401542205
+  InBroadcastPkts              14111    OutBroadcastPkts              14109
+  InMulticastPkts            4365719    OutMulticastPkts            4345813
+    InUnicastPkts           93501869      OutUnicastPkts          397182283
+       InDiscards                  0         OutDiscards                  0
+         InErrors                  0           OutErrors                  0
+     InCollisions                  0       OutCollisions                  0
+                                       OutLateCollisions                  0
+        Alignment                  0                 FCS                  0
+   InFlowCtrlPkts                  0     OutFlowCtrlPkts                  0
+        GiantPkts                  0           ShortPkts                  0
+     InBitsPerSec                  0       OutBitsPerSec                  0
+     InPktsPerSec                  0       OutPktsPerSec                  0
+    InUtilization               0.0%      OutUtilization               0.0%
+
+PORT 1/3 Counters:
+         InOctets       566459706934           OutOctets       123487254897
+           InPkts          391853507             OutPkts           88806106
+  InBroadcastPkts              14932    OutBroadcastPkts              14381
+  InMulticastPkts            4468692    OutMulticastPkts            4410410
+    InUnicastPkts          387369883      OutUnicastPkts           84381315
+       InDiscards                  0         OutDiscards                  0
+         InErrors                  0           OutErrors                  0
+     InCollisions                  0       OutCollisions                  0
+                                       OutLateCollisions                  0
+        Alignment                  0                 FCS                  0
+   InFlowCtrlPkts                  0     OutFlowCtrlPkts                  0
+        GiantPkts                  0           ShortPkts                  0
+     InBitsPerSec               4519       OutBitsPerSec               2739
+     InPktsPerSec                  7       OutPktsPerSec                  4
+    InUtilization               0.0%      OutUtilization               0.0%
+

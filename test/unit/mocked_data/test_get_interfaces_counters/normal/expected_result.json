@@ -1,0 +1,44 @@
+{
+    "1/1": {
+        "rx_broadcast_packets": 0, 
+        "rx_discards": 0, 
+        "rx_errors": 0, 
+        "rx_multicast_packets": 0, 
+        "rx_octets": 178432, 
+        "rx_unicast_packets": 2788, 
+        "tx_broadcast_packets": 154484, 
+        "tx_discards": 0, 
+        "tx_errors": 0, 
+        "tx_multicast_packets": 58090, 
+        "tx_octets": 17560883, 
+        "tx_unicast_packets": 215953
+    }, 
+    "1/2": {
+        "rx_broadcast_packets": 14111, 
+        "rx_discards": 0, 
+        "rx_errors": 0, 
+        "rx_multicast_packets": 4365719, 
+        "rx_octets": 125785652186, 
+        "rx_unicast_packets": 97881699, 
+        "tx_broadcast_packets": 14109, 
+        "tx_discards": 0, 
+        "tx_errors": 0, 
+        "tx_multicast_packets": 4345813, 
+        "tx_octets": 568568238030, 
+        "tx_unicast_packets": 401542205
+    }, 
+    "1/3": {
+        "rx_broadcast_packets": 14932, 
+        "rx_discards": 0, 
+        "rx_errors": 0, 
+        "rx_multicast_packets": 4468692, 
+        "rx_octets": 566459706934, 
+        "rx_unicast_packets": 391853507, 
+        "tx_broadcast_packets": 14381, 
+        "tx_discards": 0, 
+        "tx_errors": 0, 
+        "tx_multicast_packets": 4410410, 
+        "tx_octets": 123487254897, 
+        "tx_unicast_packets": 88806106
+    }
+}

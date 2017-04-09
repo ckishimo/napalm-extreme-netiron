@@ -1,0 +1,6 @@
+Username            Password                           Encrypt   Priv 
+===================================================================================
+aaa                $2$lj1..n//$pPjgEUBK38KojHdL0ku7w1 enabled   0    
+bbb                $2$544..1F5$x3IoNevQkGMamZAmwZ68C1 enabled   0    
+ccc                $2$rG6..O44$0c0rJTspA53QTN8pq5v8o. enabled   5    
+

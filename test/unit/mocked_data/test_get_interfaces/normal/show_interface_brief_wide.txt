@@ -1,0 +1,22 @@
+
+Port   Link     Port-State   Speed Tag MAC            Name
+1/1    Up       Forward      10G   No  0024.388a.ac00 
+1/2    Disabled None         None  Yes 0024.388a.ac00 connection1
+1/3    Up       Forward      10G   Yes 0024.388a.ac00 connection2
+1/4    Disabled None         None  No  0024.388a.ac03 
+1/5    Disabled None         None  No  0024.388a.ac04 
+1/6    Disabled None         None  No  0024.388a.ac05 
+1/7    Disabled None         None  No  0024.388a.ac06 
+1/8    Down     None         None  Yes 0024.388a.ac00 test
+mgmt1  Disabled None         None  Yes 0024.388a.ac00 
+
+Port   Link     Port-State   Speed Tag MAC            Name        
+ve239  Down     N/A          N/A   N/A 0024.388a.ac00 connection1
+ve240  Up       N/A          N/A   N/A 0024.388a.ac00 connection2
+ve241  Up       N/A          N/A   N/A 0024.388a.ac00
+ve280  Up       N/A          N/A   N/A 0024.388a.ac00 DataCentre tests
+ve301  Up       N/A          N/A   N/A 0024.388a.ac00 
+
+Port   Link     Port-State   Speed Tag MAC            Name
+lb1    Up       N/A          N/A   N/A N/A            
+lb2    Up       N/A          N/A   N/A N/A            

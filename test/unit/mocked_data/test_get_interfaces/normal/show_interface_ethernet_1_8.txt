@@ -1,0 +1,35 @@
+10GigabitEthernet1/8 is down, line protocol is down 
+  Port state change time: Apr  4 21:39:34  (3 days 10:55:09 ago)
+  Loopback: None
+  STP Root Guard is disabled, STP BPDU Guard is disabled
+  Hardware is 10GigabitEthernet, address is 0024.388a.ac00 (bia 0024.388a.ac07)
+  Configured speed 10Gbit, actual unknown, configured duplex fdx, actual unknown
+  Member of Control VLAN 4095, 1 L2 VLAN(S) (tagged), port is in tagged mode, port state is Disabled
+  STP configured to ON, Priority is level0, flow control disabled
+  Priority force disabled, Drop precedence level 0, Drop precedence force disabled
+  dhcp-snooping-trust configured to OFF
+  mirror disabled, monitor disabled
+  Egress Truncate on Interface:Disabled 
+  LACP BPDU Forwarding:Disabled 
+  LLDP BPDU Forwarding:Disabled 
+  UDA Offsets :Disabled 
+  Not member of any active trunks
+  Not member of any configured trunks
+  Port name is test
+  Port is not enabled to receive all vlan packets for pbr
+  MTU 9216 bytes, encapsulation ethernet
+  Configured BW is 10000000 kbps
+  Openflow: Disabled, Openflow Index 8
+  Cluster L2 protocol forwarding enabled
+  30 second input rate: 0 bits/sec, 0 packets/sec, 0.00% utilization
+  30 second output rate: 0 bits/sec, 0 packets/sec, 0.00% utilization
+  574230 packets input, 49383780 bytes, 0 no buffer
+  Received 0 broadcasts, 574230 multicasts, 0 unicasts
+  0 input errors, 0 CRC, 0 frame, 0 ignored
+  0 runts, 0 giants
+  NP received 574230 packets, Sent to TM 0 packets
+  NP Ingress dropped 574230 packets
+  573906 packets output, 49355916 bytes, 0 underruns
+  Transmitted 0 broadcasts, 573906 multicasts, 0 unicasts
+  0 output errors, 0 collisions
+  NP transmitted 573906 packets, Received from TM 573906 packets

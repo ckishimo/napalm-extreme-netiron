@@ -1,0 +1,30 @@
+[
+    {
+        "active": true, 
+        "interface": "3/3", 
+        "last_move": -1.0, 
+        "mac": "60:9C:9F:D6:15:00", 
+        "moves": -1, 
+        "static": false, 
+        "vlan": 280
+    }, 
+    {
+        "active": true, 
+        "interface": "3/2", 
+        "last_move": -1.0, 
+        "mac": "60:9C:9F:D5:F5:80", 
+        "moves": -1, 
+        "static": false, 
+        "vlan": 280
+    }, 
+    {
+        "active": true, 
+        "interface": "3/3", 
+        "last_move": -1.0, 
+        "mac": "00:11:22:22:33:33", 
+        "moves": -1, 
+        "static": true, 
+        "vlan": 280
+    }
+]
+

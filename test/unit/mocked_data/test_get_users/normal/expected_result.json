@@ -1,0 +1,18 @@
+{
+    "aaa": {
+        "level": 0, 
+        "password": "$2$lj1..n//$pPjgEUBK38KojHdL0ku7w1", 
+        "sshkeys": []
+    }, 
+    "bbb": {
+        "level": 0, 
+        "password": "$2$544..1F5$x3IoNevQkGMamZAmwZ68C1", 
+        "sshkeys": []
+    }, 
+    "ccc": {
+        "level": 5, 
+        "password": "$2$rG6..O44$0c0rJTspA53QTN8pq5v8o.", 
+        "sshkeys": []
+    }
+}
+

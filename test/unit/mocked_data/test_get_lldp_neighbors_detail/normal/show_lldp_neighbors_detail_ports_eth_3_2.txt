@@ -1,0 +1,17 @@
+Local port: 3/2
+  Neighbor: 609c.9fd5.f580, TTL 102 seconds
+    + Chassis ID (MAC address): 609c.9fd5.f580
+    + Port ID (MAC address): 609c.9fd5.f580
+    + Time to live: 120 seconds
+    + System name         : "R513-C-RBR7Y-2"                      
+    + Port description    : "10GigabitEthernet1/1/1"
+    + System capabilities : bridge, router
+      Enabled capabilities: bridge, router
+    + 802.3 MAC/PHY          : auto-negotiation supported, but disabled
+      Operational MAU type   : 10GigBaseSR
+    + Link aggregation: not capable
+    + Maximum frame size: 10200 octets
+    + Port VLAN ID: 1
+    + Management address (IPv4): 10.90.2.11
+    + Management address (IPv6): fd01:1458:306:c9::cd
+

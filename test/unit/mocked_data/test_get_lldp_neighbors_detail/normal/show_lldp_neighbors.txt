@@ -1,0 +1,5 @@
+Total number of LLDP neighbors on all ports: 3
+Lcl Port Chassis ID      Port ID         Port Description        System Name   
+3/1      609c.9fd6.1580  609c.9fd6.1580  10GigabitEthernet1/1/1  R513-C-RBR7Y-~
+3/2      609c.9fd5.f580  609c.9fd5.f580  10GigabitEthernet1/1/1  R513-C-RBR7Y-~
+3/3      609c.9fd6.1500  609c.9fd6.1500  10GigabitEthernet1/1/1  R513-C-RBR7Y-~
