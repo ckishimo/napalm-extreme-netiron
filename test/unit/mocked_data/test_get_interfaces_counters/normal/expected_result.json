@@ -40,5 +40,19 @@
         "tx_multicast_packets": 4410410, 
         "tx_octets": 123487254897, 
         "tx_unicast_packets": 88806106
+    },
+    "mgmt1": {
+        "rx_broadcast_packets": 0,
+        "rx_discards": 0,
+        "rx_errors": 0,
+        "rx_multicast_packets": 0,
+        "rx_octets": 0,
+        "rx_unicast_packets": 0,
+        "tx_broadcast_packets": 0,
+        "tx_discards": 0,
+        "tx_errors": 0,
+        "tx_multicast_packets": 0,
+        "tx_octets": 0,
+        "tx_unicast_packets": 0
     }
 }

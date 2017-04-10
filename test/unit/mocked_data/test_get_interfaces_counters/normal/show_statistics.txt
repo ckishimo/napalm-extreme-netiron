@@ -50,3 +50,18 @@ PORT 1/3 Counters:
      InPktsPerSec                  7       OutPktsPerSec                  4
     InUtilization               0.0%      OutUtilization               0.0%
 
+ PORT mgmt1 Counters:
+         InOctets                  0           OutOctets                  0
+           InPkts                  0             OutPkts                  0
+  InBroadcastPkts                  0    OutBroadcastPkts                  0
+  InMulticastPkts                  0    OutMulticastPkts                  0
+    InUnicastPkts                  0      OutUnicastPkts                  0
+       InDiscards                  0         OutDiscards                  0
+         InErrors                  0           OutErrors                  0
+     InCollisions                  0       OutCollisions                  0
+                                       OutLateCollisions                  0
+        Alignment                  0                 FCS                  0
+   InFlowCtrlPkts                  0     OutFlowCtrlPkts                  0
+        GiantPkts                  0           ShortPkts                  0
+
+
