@@ -145,6 +145,27 @@ class NetironDriver(NetworkDriver):
 
         return [last_flap, description, speed, mac]
 
+    def _get_logical_interface_detail(self, port):
+
+    	# replace lb keyword with loopback keyword
+    	port.replace("lb","loopback")
+        command = "show interface {}".format(port)
+        output = self.device.send_command(command)
+
+        last_flap = -1
+        speed = -1
+        if re.search(r"\s+No port name", output, re.MULTILINE):
+            description = ""
+        else:
+            description = re.search(r"\s+Port name is (.*)", output, re.MULTILINE).group(1)
+        match = re.search(r"\s+Hardware is Virtual Ethernet, address is (\S+) (.+)", output)
+        if match:
+        	mac = match.group(1)
+        else:
+        	mac = "N/A"
+
+        return [last_flap, description, speed, mac]
+
     def get_interfaces(self):
 
         interface_list = {}
@@ -166,14 +187,22 @@ class NetironDriver(NetworkDriver):
 
             if re.match("\d+/\d+", port):
                 port_detail = self._get_interface_detail(port)
+
+                state = state.lower()
+                is_up = bool('forward' in state)
+
+                link = link.lower()
+                is_enabled = not bool('disabled' in link)
+        
+            elif re.match("(ve|lb)\d+", port):
+                port_detail = self._get_logical_interface_detail(port)
+
+            	link = link.lower()
+            	is_enabled = not bool('down' in link)
+            	is_up = is_enabled
+            	
             else:
                 continue
-
-            state = state.lower()
-            is_up = bool('forward' in state)
-
-            link = link.lower()
-            is_enabled = not bool('disabled' in link)
 
             interface_list[port] = {
                 'is_up': is_up,

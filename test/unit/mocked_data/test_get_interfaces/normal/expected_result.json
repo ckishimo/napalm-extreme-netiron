@@ -61,7 +61,31 @@
         "is_up": false, 
         "last_flapped": 298509.0, 
         "mac_address": "0024.388a.ac00", 
-        "speed": 10000
+        "speed": 10000 
+    },
+    "ve280": {
+        "description": "DataCentre tests",
+        "is_enabled": true,
+        "is_up": true,
+        "last_flapped": -1.0,
+        "mac_address": "0024.388a.ac00",
+        "speed": -1
+    },
+    "lb1": {
+        "description": "",
+        "is_enabled": true,
+        "is_up": true,
+        "last_flapped": -1.0,
+        "mac_address": "N/A",
+        "speed": -1 
+    },
+    "lb2": {
+        "description": "this is a test",
+        "is_enabled": false,
+        "is_up": false,
+        "last_flapped": -1.0,
+        "mac_address": "N/A",
+        "speed": -1 
     }
 }
 

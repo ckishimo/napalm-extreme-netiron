@@ -11,12 +11,8 @@ Port   Link     Port-State   Speed Tag MAC            Name
 mgmt1  Disabled None         None  Yes 0024.388a.ac00 
 
 Port   Link     Port-State   Speed Tag MAC            Name        
-ve239  Down     N/A          N/A   N/A 0024.388a.ac00 connection1
-ve240  Up       N/A          N/A   N/A 0024.388a.ac00 connection2
-ve241  Up       N/A          N/A   N/A 0024.388a.ac00
 ve280  Up       N/A          N/A   N/A 0024.388a.ac00 DataCentre tests
-ve301  Up       N/A          N/A   N/A 0024.388a.ac00 
 
 Port   Link     Port-State   Speed Tag MAC            Name
 lb1    Up       N/A          N/A   N/A N/A            
-lb2    Up       N/A          N/A   N/A N/A            
+lb2    Down     N/A          N/A   N/A N/A            

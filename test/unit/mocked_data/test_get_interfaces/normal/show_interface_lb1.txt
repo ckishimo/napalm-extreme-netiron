@@ -1,0 +1,4 @@
+Loopback1 is up, line protocol is up 
+  Hardware is Loopback
+  No port name
+  Internet address is 172.24.46.10/32, IP MTU 1500 bytes, encapsulation LOOPBACK

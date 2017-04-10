@@ -1,0 +1,4 @@
+Loopback2 is down, line protocol is down 
+  Hardware is Loopback
+  Port name is this is a test
+  Internet address is 10.90.1.1/32, IP MTU 1500 bytes, encapsulation LOOPBACK
