@@ -423,3 +423,40 @@ class NetironDriver(NetworkDriver):
 
         return info
 
+    def get_ntp_servers(self):
+
+        command = "show running | begin ^ntp"
+        lines = self.device.send_command(command)
+        lines = lines.split("\n")
+
+        ntp = {}
+        for line in lines:
+
+            if "!" in line:
+    		   return ntp
+
+            match = re.match("\s+server\s+(\S+)(.*)", line)
+            if match:
+               server = unicode(match.group(1))
+               ntp[server] = {}
+
+        return ntp
+
+    def get_ntp_peers(self):
+
+    	command = "show running | begin ^ntp"
+    	lines = self.device.send_command(command)
+    	lines = lines.split("\n")
+
+        ntp = {}
+    	for line in lines:
+
+            if "!" in line:
+    		   return ntp
+
+            match = re.match("\s+peer\s+(\S+)(.*)", line)
+            if match:
+                peer = unicode(match.group(1))
+                ntp[peer] = {}
+
+    	return ntp
