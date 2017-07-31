@@ -489,3 +489,68 @@ class NetironDriver(NetworkDriver):
                 ntp[peer] = {}
 
     	return ntp
+
+    def get_facts(self):
+
+        command = 'show version'
+        lines = self.device.send_command(command)
+        for line in lines.splitlines():
+            # Chassis: MLXe 16-slot (Serial #: BFQ2512G00H,  Part #: 40-1000360-04)
+            r1 = re.match(r'^Chassis:\s+(.*)\s+\(Serial #:\s+(\S+),(.*)', line)
+            if r1:
+                model = r1.group(1)
+                serial = r1.group(2)
+
+            # IronWare : Version 6.0.0bT163 Copyright (c) 1996-2015 Brocade Communications Systems, Inc
+            r2 = re.match(r'^IronWare : Version\s+(\S+)\s+Copyright \(c\)\s+(.*)', line)
+            if r2:
+                version = r2.group(1)
+                vendor = r2.group(2)
+
+        command = 'show uptime'
+        lines = self.device.send_command(command)
+        for line in lines.splitlines():
+            # Get the uptime from the Active MP module
+            r1 = re.match(r'\s+Active MP(.*)Uptime\s+(\d+)\s+days'
+                          r'\s+(\d+)\s+hours'
+                          r'\s+(\d+)\s+minutes'
+                          r'\s+(\d+)\s+seconds',line)
+            if r1:
+                # FIXME: Convert uptime in seconds
+                uptime = 0
+
+        facts = {
+            # FIXME: uptime
+            'vendor': unicode(vendor),
+            'model': unicode(model),
+            # FIXME: hostname and fqdn
+            'hostname': unicode("Unknown"),
+            'fqdn': unicode("Unknown"),
+            'os_version': unicode(version),
+            'serial_number': unicode(serial),
+            'interface_list': []
+        }
+
+        iface = 'show interface brief wide'
+        output = self.device.send_command(iface)
+        output = output.split('\n')
+        output = output[2:]
+
+        for line in output:
+            fields = line.split()
+
+            if len(line) == 0:
+                continue
+            elif len(fields) >= 6:
+                port, link, state, speed, tag, mac = fields[:6]
+
+                r1 = re.match(r'^(\d+)/(\d+)', port)
+                if r1:
+                    port = 'e' + port
+                    facts['interface_list'].append(port)
+                elif re.match(r'^mgmt1', port):
+                    facts['interface_list'].append(port)
+                elif re.match(r'^ve(\d+)', port):
+                    facts['interface_list'].append(port)
+
+        return facts
