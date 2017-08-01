@@ -720,3 +720,42 @@ class NetironDriver(NetworkDriver):
                     break
 
         return interfaces     
+
+    def get_bgp_neighbors_detail(self):
+
+        bgp_data = dict()
+        bgp_data['global'] = dict()
+
+        command = 'show ip bgp neighbors'
+        lines_neighbors = self.device.send_command(command)
+        for line in lines_neighbors.splitlines():
+            r1 = re.match(r'^\d+\s+IP Address:\s+(?P<remote_address>({})),'
+                          r'\s+AS:\s+(?P<remote_as>({}))'
+                          r'\s+\((IBGP|EBGP)\), RouterID:\s+(?P<router_id>({})),'
+                          r'\s+VRF:\s+(?P<vrf_name>\S+)'.format(IPV4_ADDR_REGEX, ASN_REGEX, IPV4_ADDR_REGEX), line)
+            if r1:
+                remote_address = r1.group('remote_address')
+                router_id = r1.group('router_id')
+                vrf = r1.group('vrf_name')
+ 
+            r2 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
+                            r'\s+KeepAliveTime:\s+(\d+),'
+                            r'\s+HoldTime:\s+(\d+)', line)
+            if r2:
+                connection_state = r2.group(1)
+                uptime = r2.group(2)
+                keepalive = r2.group(3)
+                holdtime = r2.group(4)
+
+            # Local host:  172.24.46.1, Local  Port: 8033
+            # Remote host: 172.24.46.11, Remote Port: 179
+            r3 = re.match(r'\s+(Remote|Local) host:\s+(\S+),\s+(Remote|Local)\s+Port:\s+(\d+),', line)
+            if r3:
+                if r3.group(1) == "Remote":
+                    remote_port = r3.group(4)
+                    remote_address = r3.group(2)
+                elif r3.group(1) == "Local":
+                    local_port = r3.group(4)
+                    local_address = r3.group(2)
+
+        return bgp_data
