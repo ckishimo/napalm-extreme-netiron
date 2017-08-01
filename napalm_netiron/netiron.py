@@ -22,9 +22,7 @@ from napalm_base.exceptions import ConnectionException, MergeConfigException, \
     ReplaceConfigException, SessionLockedException, CommandErrorException
 import napalm_base.helpers
 
-import os
 import re
-from shutil import copyfile
 
 class NetironDriver(NetworkDriver):
     """Napalm Driver for Vendor Extreme/Netiron."""
@@ -362,8 +360,8 @@ class NetironDriver(NetworkDriver):
                 lldp_detail = self._lldp_detail_parser(local_port)
             
                 entry = {
-                   'hostname': unicode(lldp_detail[3])
-                   'port': unicode(lldp_detail[1]),
+                   'hostname': unicode(lldp_detail[3]),
+                   'port': unicode(lldp_detail[1])
                 }
                 lldp.setdefault(local_port, [])	
                 lldp[local_port].append(entry)
