@@ -559,5 +559,7 @@ class NetironDriver(NetworkDriver):
                     facts['interface_list'].append(port)
                 elif re.match(r'^ve(\d+)', port):
                     facts['interface_list'].append(port)
+                elif re.match(r'^lb(\d+)', port):
+                    facts['interface_list'].append(port)
 
         return facts
