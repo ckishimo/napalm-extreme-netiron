@@ -370,7 +370,7 @@ class NetironDriver(NetworkDriver):
 
     def get_lldp_neighbors_detail(self, interface=''):
 
-        lldp = {}
+        lldp = {}      
         command = 'show lldp neighbors'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -380,6 +380,9 @@ class NetironDriver(NetworkDriver):
         for line in lines:
             fields = line.split()
 
+            # FIXME: portid, portdesc and name can be strings so it will not work for
+            # 1/5      609c.9fde.1b14  Ethernet 0/47   Eth 0/47                Router1
+            # Need to parse show lldp neighbors detail        
             if len(fields) == 5:
                 local_port, chassis, portid, portdesc, name = fields
 
