@@ -362,8 +362,8 @@ class NetironDriver(NetworkDriver):
                 lldp_detail = self._lldp_detail_parser(local_port)
             
                 entry = {
-                   'port': unicode(lldp_detail[1]),
                    'hostname': unicode(lldp_detail[3])
+                   'port': unicode(lldp_detail[1]),
                 }
                 lldp.setdefault(local_port, [])	
                 lldp[local_port].append(entry)
