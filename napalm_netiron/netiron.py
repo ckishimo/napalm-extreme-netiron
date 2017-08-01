@@ -229,40 +229,40 @@ class NetironDriver(NetworkDriver):
             elif len(line)==0:
                 continue
             else:
-                octets = re.search(r"\s+InOctets\s+(\d+)\s+OutOctets\s+(\d+)\.*", line)
+                octets = re.match(r"\s+InOctets\s+(\d+)\s+OutOctets\s+(\d+)\.*", line)
                 if octets:
-                   counters[interface]['rx_octets'] =  int(octets.group(1))
-                   counters[interface]['tx_octets'] =  int(octets.group(2))
+                   counters[interface]['rx_octets'] = octets.group(1)
+                   counters[interface]['tx_octets'] = octets.group(2)
                    continue
 
-                packets = re.search(r"\s+InPkts\s+(\d+)\s+OutPkts\s+(\d+)\.*", line)
+                packets = re.match(r"\s+InPkts\s+(\d+)\s+OutPkts\s+(\d+)\.*", line)
                 if packets:
-                   counters[interface]['rx_unicast_packets'] = int(packets.group(1))
-                   counters[interface]['tx_unicast_packets'] = int(packets.group(2))
+                   counters[interface]['rx_unicast_packets'] = packets.group(1)
+                   counters[interface]['tx_unicast_packets'] = packets.group(2)
                    continue
 
-                broadcast = re.search(r"\s+InBroadcastPkts\s+(\d+)\s+OutBroadcastPkts\s+(\d+)\.*", line)
+                broadcast = re.match(r"\s+InBroadcastPkts\s+(\d+)\s+OutBroadcastPkts\s+(\d+)\.*", line)
                 if broadcast:
-                   counters[interface]['rx_broadcast_packets'] = int(broadcast.group(1))
-                   counters[interface]['tx_broadcast_packets'] = int(broadcast.group(2))
+                   counters[interface]['rx_broadcast_packets'] = broadcast.group(1)
+                   counters[interface]['tx_broadcast_packets'] = broadcast.group(2)
                    continue
 
-                multicast = re.search(r"\s+InMulticastPkts\s+(\d+)\s+OutMulticastPkts\s+(\d+)\.*", line)
+                multicast = re.match(r"\s+InMulticastPkts\s+(\d+)\s+OutMulticastPkts\s+(\d+)\.*", line)
                 if multicast:
-                   counters[interface]['rx_multicast_packets'] = int(multicast.group(1))
-                   counters[interface]['tx_multicast_packets'] = int(multicast.group(2))
+                   counters[interface]['rx_multicast_packets'] = multicast.group(1)
+                   counters[interface]['tx_multicast_packets'] = multicast.group(2)
                    continue
 
-                error = re.search(r"\s+InErrors\s+(\d+)\s+OutErrors\s+(\d+)\.*", line)
+                error = re.match(r"\s+InErrors\s+(\d+)\s+OutErrors\s+(\d+)\.*", line)
                 if error:
-                   counters[interface]['rx_errors'] = int(error.group(1))
-                   counters[interface]['tx_errors'] = int(error.group(2))
+                   counters[interface]['rx_errors'] = error.group(1)
+                   counters[interface]['tx_errors'] = error.group(2)
                    continue
 
-                discard = re.search(r"\s+InDiscards\s+(\d+)\s+OutDiscards\s+(\d+)\.*", line)
+                discard = re.match(r"\s+InDiscards\s+(\d+)\s+OutDiscards\s+(\d+)\.*", line)
                 if discard:
-                   counters[interface]['rx_discards'] = int(discard.group(1))
-                   counters[interface]['tx_discards'] = int(discard.group(2))
+                   counters[interface]['rx_discards'] = discard.group(1)
+                   counters[interface]['tx_discards'] = discard.group(2)
 
         return counters
 
