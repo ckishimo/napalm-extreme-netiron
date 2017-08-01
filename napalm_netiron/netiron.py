@@ -479,7 +479,6 @@ class NetironDriver(NetworkDriver):
 
         ntp = {}
     	for line in lines:
-
             if "!" in line:
     		   return ntp
 
@@ -495,13 +494,11 @@ class NetironDriver(NetworkDriver):
         command = 'show version'
         lines = self.device.send_command(command)
         for line in lines.splitlines():
-            # Chassis: MLXe 16-slot (Serial #: BFQ2512G00H,  Part #: 40-1000360-04)
             r1 = re.match(r'^Chassis:\s+(.*)\s+\(Serial #:\s+(\S+),(.*)', line)
             if r1:
                 model = r1.group(1)
                 serial = r1.group(2)
 
-            # IronWare : Version 6.0.0bT163 Copyright (c) 1996-2015 Brocade Communications Systems, Inc
             r2 = re.match(r'^IronWare : Version\s+(\S+)\s+Copyright \(c\)\s+(.*)', line)
             if r2:
                 version = r2.group(1)
@@ -516,15 +513,25 @@ class NetironDriver(NetworkDriver):
                           r'\s+(\d+)\s+minutes'
                           r'\s+(\d+)\s+seconds',line)
             if r1:
-                # FIXME: Convert uptime in seconds
-                uptime = 0
+                days = int(r1.group(2))
+                hours = int(r1.group(3))
+                minutes = int(r1.group(4))
+                seconds = int(r1.group(5))
+                uptime = seconds + minutes*60 + hours*3600 + days*86400
 
+        command = 'show running-config | include ^hostname'
+        lines = self.device.send_command(command)
+        for line in lines.splitlines():
+            r1 = re.match(r'^hostname (\S+)', line)
+            if r1:
+                hostname = r1.group(1)
+                
         facts = {
-            # FIXME: uptime
+            'uptime': uptime,
             'vendor': unicode(vendor),
             'model': unicode(model),
-            # FIXME: hostname and fqdn
-            'hostname': unicode("Unknown"),
+            'hostname': unicode(hostname),
+            # FIXME: fqdn
             'fqdn': unicode("Unknown"),
             'os_version': unicode(version),
             'serial_number': unicode(serial),
