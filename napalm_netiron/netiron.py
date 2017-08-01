@@ -290,8 +290,8 @@ class NetironDriver(NetworkDriver):
                    'vlan': int(vlan),
                    'active': bool(1),
                    'static': is_static,
-                   'moves': -1,
-                   'last_move': float(-1)
+                   'moves': None,
+                   'last_move': None
                 }
                 mac_address_table.append(entry)
             
