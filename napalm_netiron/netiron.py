@@ -353,7 +353,9 @@ class NetironDriver(NetworkDriver):
 
         for line in lines:
             fields = line.split()
-
+            # FIXME: portid, portdesc and name can be strings so it will not work for
+            # 1/5      609c.9fde.1b14  Ethernet 0/47   Eth 0/47                Router1
+            # Need to parse show lldp neighbors detail        
             if len(fields) == 5:
                 local_port, chassis, portid, portdesc, name = fields
                 # Sys name name may be truncated, so get the complete name from the detailed output
@@ -554,6 +556,47 @@ class NetironDriver(NetworkDriver):
 
         return facts
 
+    def get_interfaces_ip(self):
+
+        interfaces = {}
+
+        command = 'show ip interface'
+        output = self.device.send_command(command)
+        output = output.split('\n')
+        output = output[2:]
+
+        # FIXME: Provide the ipv6 address/prefix as well
+        for line in output:
+            fields = line.split()
+            if len(fields) == 8:
+               iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
+               port = iface + ifaceid
+               # FIXME: There are duplicate ports
+               interfaces[port] = dict()
+               interfaces[port]['ipv4'] = dict()
+               interfaces[port]['ipv4'][address] = dict()
+
+        # Get the prefix from the running-config interface
+        for iface in interfaces:
+            if iface != "mgmt1":
+               show_command = "show run interface {0}".format(iface)
+            else:
+               show_command = "show running | begin ^interface management 1"
+
+            interface_output = self.device.send_command(show_command)
+            for line in interface_output.splitlines():
+                if 'ip address ' in line:
+                    fields = line.split()
+                    # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary                 
+                    if len(fields) in [3,4]:                     
+                       address, subnet = fields[2].split(r'/')
+                       interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
+                if "!" in line:
+                    # Needed to exit from the "show running | begin ^interface management 1" output
+                    break
+
+        return interfaces     
+
     def get_network_instances(self):
 
         vrfs = {}
@@ -677,3 +720,4 @@ class NetironDriver(NetworkDriver):
                 bgp_data['global']['peers'][current]['is_up'] = uptime
 
         return bgp_data
+
