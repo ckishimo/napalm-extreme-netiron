@@ -119,50 +119,47 @@ class NetironDriver(NetworkDriver):
 		#(3 days 11:27:46 ago)	
         r1 = re.match("(\d+) days (\d+):(\d+):(\d+)", last_str)
         if r1:
-        	days = int(r1.group(1))
-        	hours = int(r1.group(2))
-        	mins = int(r1.group(3))
-        	secs = int(r1.group(4))
+            days = int(r1.group(1))
+            hours = int(r1.group(2))
+            mins = int(r1.group(3))
+            secs = int(r1.group(4))
 
-        	return float(secs + (mins*60) + (hours*60*60) + (days*24*60*60))
+            return float(secs + (mins*60) + (hours*60*60) + (days*24*60*60))
         else:
         	return (float(-1.0))
 
     def _get_interface_detail(self, port):
 
-        command = "show interface ethernet {}".format(port)
+        if port == "mgmt1":
+            command = "show interface management1"
+        else:
+            command = "show interface ethernet {}".format(port)
         output = self.device.send_command(command)
+        output = output.split('\n')
 
-        last_flap = re.search(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", output).group(1)
-        last_flap = self._parse_port_change(last_flap)
-        if re.search(r"\s+No port name", output, re.MULTILINE):
-            description = ""
-        else:
-            description = re.search(r"\s+Port name is (.*)", output, re.MULTILINE).group(1)
-        mac = re.search(r"\s+Hardware is \S+, address is (\S+) (.+)", output).group(1)
-        speed = re.search(r"\s+Configured speed (\d+)Gbit,.+", output).group(1)
-        speed = int(speed)*1000
+        #last_flap = description = mac = speed = -1
+        for line in output:
+            r0 = re.match(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", line)
+            if r0:
+                last_flap = self._parse_port_change(r0.group(1))
 
-        return [last_flap, description, speed, mac]
+            r1 = re.match(r"\s+No port name", line)
+            if r1:
+                description = ""
+        
+            r2 = re.match(r"\s+Port name is (.*)", line)
+            if r2:
+                description = r2.group(1)
 
-    def _get_logical_interface_detail(self, port):
+            r3 = re.match(r"\s+Hardware is \S+, address is (\S+) (.+)", line)
+            if r3:
+                mac = r3.group(1)
 
-    	# replace lb keyword with loopback keyword
-    	port.replace("lb","loopback")
-        command = "show interface {}".format(port)
-        output = self.device.send_command(command)
-
-        last_flap = -1
-        speed = -1
-        if re.search(r"\s+No port name", output, re.MULTILINE):
-            description = ""
-        else:
-            description = re.search(r"\s+Port name is (.*)", output, re.MULTILINE).group(1)
-        match = re.search(r"\s+Hardware is Virtual Ethernet, address is (\S+) (.+)", output)
-        if match:
-        	mac = match.group(1)
-        else:
-        	mac = "N/A"
+            r4 = re.match(r"\s+Configured speed (\d+)(G|M)bit,.+", line)
+            if r4:
+                speed = int(r4.group(1))
+                if r4.group(2) == "G":
+                    speed = speed*1000
 
         return [last_flap, description, speed, mac]
 
@@ -185,7 +182,7 @@ class NetironDriver(NetworkDriver):
             else:
                 raise ValueError(u"Unexpected Response from the device")
 
-            if re.match("\d+/\d+", port):
+            if re.match("\d+/\d+|mgmt1", port):
                 port_detail = self._get_interface_detail(port)
 
                 state = state.lower()
@@ -193,13 +190,6 @@ class NetironDriver(NetworkDriver):
 
                 link = link.lower()
                 is_enabled = not bool('disabled' in link)
-        
-            elif re.match("(ve|lb)\d+", port):
-                port_detail = self._get_logical_interface_detail(port)
-
-            	link = link.lower()
-            	is_enabled = not bool('down' in link)
-            	is_up = is_enabled
             	
             else:
                 continue
@@ -222,7 +212,7 @@ class NetironDriver(NetworkDriver):
 
         counters = {}
         for line in lines:
-            port_block = re.search('\s*PORT (\S+) Counters:.*', line)
+            port_block = re.match('\s*PORT (\S+) Counters:.*', line)
             if port_block:
                 interface = port_block.group(1)
                 counters.setdefault(interface, {})
