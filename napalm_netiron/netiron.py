@@ -137,7 +137,6 @@ class NetironDriver(NetworkDriver):
         output = self.device.send_command(command)
         output = output.split('\n')
 
-        #last_flap = description = mac = speed = -1
         for line in output:
             r0 = re.match(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", line)
             if r0:
@@ -182,6 +181,7 @@ class NetironDriver(NetworkDriver):
             else:
                 raise ValueError(u"Unexpected Response from the device")
 
+            # Physical interfaces only
             if re.match("\d+/\d+|mgmt1", port):
                 port_detail = self._get_interface_detail(port)
 
