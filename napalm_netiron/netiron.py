@@ -587,3 +587,93 @@ class NetironDriver(NetworkDriver):
 
         return vrfs
 
+    def get_bgp_neighbors(self):
+        # FIXME: No VRF support and no IPv6 support for the time being
+        # FIXME: Move the following expressions elsewhere
+        IP_ADDR_REGEX = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        IPV4_ADDR_REGEX = IP_ADDR_REGEX
+        ASN_REGEX = r"[\d\.]+"
+
+        bgp_data = dict()
+        bgp_data['global'] = dict()
+        bgp_data['global']['peers'] = dict()
+
+        command = 'show ip bgp summary'
+        lines_summary = self.device.send_command(command)
+        local_as = 0
+        for line in lines_summary.splitlines():
+            # FIXME: re.match or re.compile
+            r1 = re.match(r'^\s+Router ID:\s+(?P<router_id>({}))\s+'
+                          r'Local AS Number:\s+(?P<local_as>({}))'.format(IPV4_ADDR_REGEX, ASN_REGEX), line)
+            if r1:
+                # FIXME: AS numbers check: napalm_base.helpers.as_number(
+                # FIXME: How to export a variable to avoid initialization (local_as)
+                # FIXME: code not used
+                router_id = r1.group('router_id')
+                local_as = r1.group('local_as')
+                # FIXME check the router_id looks like an ipv4 address
+                # router_id = napalm_base.helpers.ip(router_id, version=4)
+                bgp_data['global']['router_id'] = router_id
+
+            # Neighbor Address  AS#         State   Time          Rt:Accepted Filtered Sent     ToSend
+            # 172.24.46.2       513         ESTAB   587d7h24m    0           0        255      0       
+            # FIXME: uptime is not a single string!
+            r2 = re.match(r'^\s+(?P<remote_addr>({}))\s+(?P<remote_as>({}))\s+(?P<state>\S+)\s+'
+                                r'(?P<uptime>\S+)'
+                                r'\s+(?P<accepted_prefixes>\d+)'
+                                r'\s+(?P<filtered_prefixes>\d+)'
+                                r'\s+(?P<sent_prefixes>\d+)'
+                                r'\s+(?P<tosend_prefixes>\d+)'.format(IPV4_ADDR_REGEX, ASN_REGEX), line)
+            if r2:
+                remote_addr = r2.group('remote_addr')
+                afi = "ipv4"
+                # FIXME: Confirm how to get received prefixes in MLXe
+                received_prefixes = int(r2.group('accepted_prefixes'))+int(r2.group('filtered_prefixes'))
+                bgp_data['global']['peers'][remote_addr] = {
+                        'local_as': local_as,
+                        'remote_as': r2.group('remote_as'),
+                        'address_family': {
+                            afi: {
+                                 'received_prefixes': received_prefixes,
+                                 'accepted_prefixes': r2.group('accepted_prefixes'),
+                                 'sent_prefixes': r2.group('sent_prefixes')
+                            }
+                        }
+                }
+
+        current = ""
+        command = 'show ip bgp neighbors'
+        lines_neighbors = self.device.send_command(command)
+        for line in lines_neighbors.splitlines():
+            r1 = re.match(r'^\d+\s+IP Address:\s+(?P<remote_addr>({})),'
+                          r'\s+AS:\s+(?P<remote_as>({}))'
+                          r'\s+\((IBGP|EBGP)\), RouterID:\s+(?P<remote_id>({})),'
+                          r'\s+VRF:\s+(?P<vrf_name>\S+)'.format(IPV4_ADDR_REGEX, ASN_REGEX, IPV4_ADDR_REGEX), line)
+            if r1:
+                remote_addr = r1.group('remote_addr')
+                remote_id = r1.group('remote_id')
+                vrf = r1.group('vrf_name')
+                bgp_data['global']['peers'][remote_addr]['remote_as'] = r1.group('remote_as')
+                bgp_data['global']['peers'][remote_addr]['remote_id'] = remote_id
+                current = remote_addr
+
+            # line:       Description: ----> L513-B-RBRMX-2
+            r2 = re.match(r'\s+Description:\s+(.*)', line)
+            if r2:
+                description = r2.group(1)
+                bgp_data['global']['peers'][current]['description'] = description
+
+            # line:    State: ESTABLISHED, Time: 587d7h24m52s, KeepAliveTime: 10, HoldTime: 30
+            r3 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
+                            r'\s+KeepAliveTime:\s+(\d+),'
+                            r'\s+HoldTime:\s+(\d+)', line)
+            if r3:
+                # FIXME: compute is_up, is_enabled
+                is_up = 1
+                is_enabled = 1
+                uptime = r3.group(2)
+                bgp_data['global']['peers'][current]['is_up'] = is_up
+                bgp_data['global']['peers'][current]['is_enabled'] = is_enabled
+                bgp_data['global']['peers'][current]['is_up'] = uptime
+
+        return bgp_data
