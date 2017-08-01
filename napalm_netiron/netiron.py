@@ -563,3 +563,37 @@ class NetironDriver(NetworkDriver):
                     facts['interface_list'].append(port)
 
         return facts
+
+    def get_network_instances(self):
+
+        vrfs = {}
+
+        command = 'show vrf'
+        lines = self.device.send_command(command)
+        lines = lines[3:-3]
+        for line in lines.splitlines():
+            r1 = re.match(r'^(\S+)\s+(\d+):(\d+).*', line)
+            if r1:
+                name = r1.group(1)
+                rd = u'{}.{}'.format(r1.group(2), r1.group(3))
+
+                command = "show vrf {}".format(name)
+                vlines = self.device.send_command(command)
+                for l in vlines.splitlines():
+                    continue
+
+        vrfs[u'default'] = {
+            u'name': u'default',
+            u'type': u'DEFAULT_INSTANCE',
+            u'state': {
+                u'route_distinguisher': None,
+            },
+            u'interfaces': {
+                u'interface': {
+                    #k: {} for k in all_interfaces if k not in all_vrf_interfaces.keys()
+                },
+            },
+        }
+
+        return vrfs
+
