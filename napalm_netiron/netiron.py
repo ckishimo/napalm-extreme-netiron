@@ -690,16 +690,17 @@ class NetironDriver(NetworkDriver):
         output = output.split('\n')
         output = output[2:]
 
-        # FIXME: Provide the ipv6 address/prefix as well
         for line in output:
             fields = line.split()
             if len(fields) == 8:
                iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
                port = iface + ifaceid
-               # FIXME: There are duplicate ports
-               interfaces[port] = dict()
-               interfaces[port]['ipv4'] = dict()
-               interfaces[port]['ipv4'][address] = dict()
+               # Speed up things
+               if iface == "eth":
+                  # FIXME: There are duplicate ports
+                  interfaces[port] = dict()
+                  interfaces[port]['ipv4'] = dict()
+                  interfaces[port]['ipv4'][address] = dict()
 
         # Get the prefix from the running-config interface
         for iface in interfaces:
@@ -719,6 +720,30 @@ class NetironDriver(NetworkDriver):
                 if "!" in line:
                     # Needed to exit from the "show running | begin ^interface management 1" output
                     break
+
+        command = 'show ipv6 interface'
+        output = self.device.send_command(command)
+        output = output.split('\n')
+        output = output[2:]
+
+        port = ""
+        for line in output:
+            r1 = re.match(r'^(\S+)\s+(\S+).*fe80::(\S+).*', line)
+            if r1:
+               port = r1.group(1) + r1.group(2)
+               address = "fe80::" + r1.group(3)
+               if port not in interfaces:
+                  # Interfaces with ipv6 only configuration
+                  interfaces[port] = dict()
+               interfaces[port]['ipv6'] = dict()
+               interfaces[port]['ipv6'][address] = dict()
+               interfaces[port]['ipv6'][address] = { 'prefix_length': 'N/A' }
+
+            r2 = re.match(r'\s+(\S+)\/(\d+)\s*', line)
+            if r2:
+                address = r2.group(1)
+                subnet = r2.group(2)
+                interfaces[port]['ipv6'][address] = { 'prefix_length': subnet }
 
         return interfaces     
 
