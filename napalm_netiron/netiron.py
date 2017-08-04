@@ -695,12 +695,10 @@ class NetironDriver(NetworkDriver):
             if len(fields) == 8:
                iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
                port = iface + ifaceid
-               # Speed up things
-               if iface == "eth":
-                  # FIXME: There are duplicate ports
-                  interfaces[port] = dict()
-                  interfaces[port]['ipv4'] = dict()
-                  interfaces[port]['ipv4'][address] = dict()
+               # FIXME: There are duplicate ports
+               interfaces[port] = dict()
+               interfaces[port]['ipv4'] = dict()
+               interfaces[port]['ipv4'][address] = dict()
 
         # Get the prefix from the running-config interface
         for iface in interfaces:
