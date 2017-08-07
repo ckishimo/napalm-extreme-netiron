@@ -830,4 +830,14 @@ class NetironDriver(NetworkDriver):
                 environment[psu] = dict()
                 environment[psu] = { 'status': True, 'capacity': r2.group(2), 'output': 'N/A' }
 
+            # Back Fan A-1: Status = OK, Speed = MED (60%)
+            r3 = re.match(r'^(.*):\s+Status = (\S+),\s+Speed\s+=\s+(\S+)\s+\((\d+)%\)',line)
+            if r3:
+                fan = r3.group(1)
+                status = False
+                if r3.group(2) == "OK":
+                    status = True
+
+                environment[fan] = { 'status': status } 
+
         return environment
