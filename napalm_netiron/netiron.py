@@ -697,8 +697,9 @@ class NetironDriver(NetworkDriver):
                port = iface + ifaceid
                if port not in interfaces:
                   interfaces[port] = dict()
-                  interfaces[port]['ipv4'] = dict()
-                  interfaces[port]['ipv4'][address] = dict()
+
+               interfaces[port]['ipv4'] = dict()
+               interfaces[port]['ipv4'][address] = dict()
 
         # Get the prefix from the running-config interface
         for iface in interfaces:
@@ -731,13 +732,15 @@ class NetironDriver(NetworkDriver):
                port = r1.group(1) + r1.group(2)
                address = "fe80::" + r1.group(3)
                if port not in interfaces:
-                  # Interfaces with ipv6 only configuration
+                  # Interface with ipv6 only configuration
                   interfaces[port] = dict()
+
                interfaces[port]['ipv6'] = dict()
                interfaces[port]['ipv6'][address] = dict()
                interfaces[port]['ipv6'][address] = { 'prefix_length': 'N/A' }
 
-            r2 = re.match(r'\s+(\S+)\/(\d+)\s*', line)
+            # Avoid matching: fd01:1458:300:2d::/64[Anycast]
+            r2 = re.match(r'\s+(\S+)\/(\d+)\s*$', line)
             if r2:
                 address = r2.group(1)
                 subnet = r2.group(2)
