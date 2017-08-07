@@ -684,7 +684,7 @@ class NetironDriver(NetworkDriver):
     def get_interfaces_ip(self):
 
         interfaces = {}
-
+       
         command = 'show ip interface'
         output = self.device.send_command(command)
         output = output.split('\n')
@@ -695,10 +695,10 @@ class NetironDriver(NetworkDriver):
             if len(fields) == 8:
                iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
                port = iface + ifaceid
-               # FIXME: There are duplicate ports
-               interfaces[port] = dict()
-               interfaces[port]['ipv4'] = dict()
-               interfaces[port]['ipv4'][address] = dict()
+               if port not in interfaces:
+                  interfaces[port] = dict()
+                  interfaces[port]['ipv4'] = dict()
+                  interfaces[port]['ipv4'][address] = dict()
 
         # Get the prefix from the running-config interface
         for iface in interfaces:
