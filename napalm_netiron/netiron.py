@@ -701,24 +701,26 @@ class NetironDriver(NetworkDriver):
                interfaces[port]['ipv4'] = dict()
                interfaces[port]['ipv4'][address] = dict()
 
-        # Get the prefix from the running-config interface
-        for iface in interfaces:
-            if iface != "mgmt1":
-               show_command = "show run interface {0}".format(iface)
-            else:
-               show_command = "show running | begin ^interface management 1"
+        # Get the prefix from the running-config interface in a single call
+        iface = ""
+        show_command = "show running-config interface"
+        interface_output = self.device.send_command(show_command)
+        for line in interface_output.splitlines():
+                r1 = re.match(r'^interface\s+(ethernet|ve|management|loopback)\s+(\S+)\s*$', line)
+                if r1:
+                    port = r1.group(1)
+                    if port == "ethernet":
+                        port = "eth"
+                    elif port == "management":
+                        port = "mgmt"
+                    iface = port + r1.group(2)
 
-            interface_output = self.device.send_command(show_command)
-            for line in interface_output.splitlines():
                 if 'ip address ' in line:
                     fields = line.split()
                     # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary                 
                     if len(fields) in [3,4]:                     
                        address, subnet = fields[2].split(r'/')
                        interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
-                if "!" in line:
-                    # Needed to exit from the "show running | begin ^interface management 1" output
-                    break
 
         command = 'show ipv6 interface'
         output = self.device.send_command(command)
