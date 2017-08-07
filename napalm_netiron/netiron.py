@@ -345,26 +345,45 @@ class NetironDriver(NetworkDriver):
         command = 'show lldp neighbors detail'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
-        lines = lines[2:]
+        lines = lines[1:]
 
         lldp = {}
 
-        for line in lines:
-            fields = line.split()
-            # portid, portdesc and name. Cannot distinguish what is portid and/or portdesc
-            # We'll have to parse show lldp neighbors detail directly...
-            if len(fields) == 5:
-                local_port, chassis, portid, portdesc, name = fields
-                # Sys name name may be truncated, so get the complete name from the detailed output
-                lldp_detail = self._lldp_detail_parser(local_port)
-            
-                entry = {
-                   'hostname': unicode(lldp_detail[3]),
-                   'port': unicode(lldp_detail[1])
-                }
-                lldp.setdefault(local_port, [])	
-                lldp[local_port].append(entry)
+        local_port = port_desc = sys_name = ""
+        new_port = 0
 
+        for line in lines:
+            # Cannot distinguish what is portid and/or portdesc from "show lldp neighbors"
+            # Need to parse "show lldp neighbors detail" instead...
+            r1 = re.match(r'^Local port: (\S+)',line)
+            if r1:
+                if new_port == 1:
+                   entry = {
+                       'hostname': sys_name,
+                       'port': port_desc
+                   }
+                   lldp.setdefault(local_port, []) 
+                   lldp[local_port].append(entry)
+
+                local_port = r1.group(1)
+                local_port = 'eth' + local_port
+                new_port = 1
+
+            r2 = re.match(r'^\s+\+ Port description\s+:\s+\"(.*)\"',line)
+            if r2:
+                port_desc = r2.group(1)
+            r3 = re.match(r'^\s+\+ System name\s+:\s+\"(.*)\"',line)
+            if r3:
+                sys_name = r3.group(1)
+
+        # Write the last port
+        entry = {
+           'hostname': sys_name,
+           'port': port_desc
+        }
+        lldp.setdefault(local_port, []) 
+        lldp[local_port].append(entry)
+            
         return lldp
 
     def get_lldp_neighbors_detail(self, interface=''):
