@@ -806,3 +806,28 @@ class NetironDriver(NetworkDriver):
                     local_address = r3.group(2)
 
         return bgp_data
+
+    def get_environment(self, interface=''):
+
+        # FIXME: Partial implementation
+        environment = {}      
+        command = 'show chassis'
+        lines = self.device.send_command(command)
+        lines = lines.split("\n")
+
+        lines = lines[3:]
+        for line in lines:
+            # Power 2: Installed (Failed or Disconnected)
+            r1 = re.match(r'^Power\s+(\d+):\s+Installed \(Failed or Disconnected\)',line)
+            # Power 7: (23-yyyyyyyy xxxxxxxxx  - AC 1800W): Installed (OK)
+            r2 = re.match(r'^Power\s+(\d+):\s+.*AC\s+(\S+)\): Installed \(OK\)',line)
+            if r1:
+                psu = r1.group(1)
+                environment[psu] = dict()
+                environment[psu] = { 'status': False, 'capacity': 'N/A', 'output': 'N/A' }
+            elif r2:
+                psu = r2.group(1)
+                environment[psu] = dict()
+                environment[psu] = { 'status': True, 'capacity': r2.group(2), 'output': 'N/A' }
+
+        return environment
