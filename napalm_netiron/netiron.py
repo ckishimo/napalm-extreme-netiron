@@ -66,9 +66,8 @@ class NetironDriver(NetworkDriver):
 
         for command in commands:
             output = self.device.send_command(command)
-            if 'Invalid input' in output:
-                raise ValueError(
-                    'Unable to execute command "{}"'.format(command))
+            if ('Invalid input' or 'Incomplete command') in output:
+                raise ValueError('Unable to execute command "{}"'.format(command))
             cli_output.setdefault(command, {})
             cli_output[command] = output
 
