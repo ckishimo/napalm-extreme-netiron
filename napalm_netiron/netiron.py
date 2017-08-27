@@ -651,11 +651,12 @@ class NetironDriver(NetworkDriver):
                 # router_id = napalm_base.helpers.ip(router_id, version=4)
                 bgp_data['global']['router_id'] = router_id
 
+
             # Neighbor Address  AS#         State   Time          Rt:Accepted Filtered Sent     ToSend
             # 172.24.46.2       513         ESTAB   587d7h24m    0           0        255      0       
-            # FIXME: uptime is not a single string!
+	    # FIXME: uptime is in 'useless' days/hours/minutes string format...
             r2 = re.match(r'^\s+(?P<remote_addr>({}))\s+(?P<remote_as>({}))\s+(?P<state>\S+)\s+'
-                                r'(?P<uptime>\S+)'
+                                r'(?P<uptime>\S.+?[m|s]+)'
                                 r'\s+(?P<accepted_prefixes>\d+)'
                                 r'\s+(?P<filtered_prefixes>\d+)'
                                 r'\s+(?P<sent_prefixes>\d+)'
@@ -663,7 +664,7 @@ class NetironDriver(NetworkDriver):
             if r2:
                 remote_addr = r2.group('remote_addr')
                 afi = "ipv4"
-                # FIXME: Confirm how to get received prefixes in MLXe
+                # FIXME: If soft reconfig inbound enabled, recv prefixes is possible
                 received_prefixes = int(r2.group('accepted_prefixes'))+int(r2.group('filtered_prefixes'))
                 bgp_data['global']['peers'][remote_addr] = {
                         'local_as': local_as,
@@ -671,8 +672,8 @@ class NetironDriver(NetworkDriver):
                         'address_family': {
                             afi: {
                                  'received_prefixes': received_prefixes,
-                                 'accepted_prefixes': r2.group('accepted_prefixes'),
-                                 'sent_prefixes': r2.group('sent_prefixes')
+                                 'accepted_prefixes': int(r2.group('accepted_prefixes')),
+                                 'sent_prefixes': int(r2.group('sent_prefixes'))
                             }
                         }
                 }
@@ -685,6 +686,7 @@ class NetironDriver(NetworkDriver):
                           r'\s+AS:\s+(?P<remote_as>({}))'
                           r'\s+\((IBGP|EBGP)\), RouterID:\s+(?P<remote_id>({})),'
                           r'\s+VRF:\s+(?P<vrf_name>\S+)'.format(IPV4_ADDR_REGEX, ASN_REGEX, IPV4_ADDR_REGEX), line)
+
             if r1:
                 remote_addr = r1.group('remote_addr')
                 remote_id = r1.group('remote_id')
@@ -712,7 +714,7 @@ class NetironDriver(NetworkDriver):
                 bgp_data['global']['peers'][current]['is_enabled'] = is_enabled
                 bgp_data['global']['peers'][current]['is_up'] = uptime
 
-        return bgp_data
+	return bgp_data
 
     def get_interfaces_ip(self):
 
