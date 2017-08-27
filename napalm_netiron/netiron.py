@@ -50,6 +50,16 @@ class NetironDriver(NetworkDriver):
                                          password=self.password,
                                          timeout=self.timeout,
                                          verbose=True)
+
+	    # FIXME: Needs much more testing
+	    output = self.device.send_command('sh ver | inc ^System')
+	    if re.search(r"CE", output):
+		self.mode = "CE"
+	    elif re.search(r"XM", output):
+		self.mode = "XM"
+	    else:
+		raise ValueError(u"Unknown device: %s" % output)
+
         except Exception:
             raise ConnectionException("Cannot connect to switch: %s:%s" \
                                           % (self.hostname, self.port))
@@ -134,6 +144,9 @@ class NetironDriver(NetworkDriver):
         output = self.device.send_command(command)
         output = output.split('\n')
 
+	last_flap = -1
+	speed = -1
+
         for line in output:
             r0 = re.match(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", line)
             if r0:
@@ -151,11 +164,10 @@ class NetironDriver(NetworkDriver):
             if r3:
                 mac = r3.group(1)
 
-            r4 = re.match(r"\s+Configured speed (\d+)(G|M)bit,.+", line)
+            r4 = re.match(r"\s+Configured BW is (\d+) kbps", line)
             if r4:
-                speed = int(r4.group(1))
-                if r4.group(2) == "G":
-                    speed = speed*1000
+                speed = int(int(r4.group(1))/1000)
+	
 
         return [last_flap, description, speed, mac]
 
@@ -187,6 +199,10 @@ class NetironDriver(NetworkDriver):
 
                 link = link.lower()
                 is_enabled = not bool('disabled' in link)
+
+	    # Match dict keys w/ get_interfaces_ip()
+	        if port != "mgmt1":
+		     port = "eth" + port
             	
             else:
                 continue
@@ -705,18 +721,23 @@ class NetironDriver(NetworkDriver):
         command = 'show ip interface'
         output = self.device.send_command(command)
         output = output.split('\n')
-        output = output[2:]
+	if self.mode == "CE":
+	    output = output[1:]
+	else:
+            output = output[2:]
 
         for line in output:
             fields = line.split()
-            if len(fields) == 8:
-               iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
+            if len(fields) in {8,10}:	# FIXME: CES/CER have 10 fields 
+               iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields[:8]
                port = iface + ifaceid
                if port not in interfaces:
                   interfaces[port] = dict()
 
                interfaces[port]['ipv4'] = dict()
                interfaces[port]['ipv4'][address] = dict()
+	    else:
+		raise ValueError(len(fields))
 
         # Get the prefix from the running-config interface in a single call
         iface = ""
