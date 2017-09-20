@@ -650,13 +650,10 @@ class NetironDriver(NetworkDriver):
         lines_summary = self.device.send_command(command)
         local_as = 0
         for line in lines_summary.splitlines():
-            # FIXME: re.match or re.compile
             r1 = re.match(r'^\s+Router ID:\s+(?P<router_id>({}))\s+'
                           r'Local AS Number:\s+(?P<local_as>({}))'.format(IPV4_ADDR_REGEX, ASN_REGEX), line)
             if r1:
-                # FIXME: AS numbers check: napalm_base.helpers.as_number(
-                # FIXME: How to export a variable to avoid initialization (local_as)
-                # FIXME: code not used
+                # FIXME: Use AS numbers check: napalm_base.helpers.as_number
                 router_id = r1.group('router_id')
                 local_as = r1.group('local_as')
                 # FIXME check the router_id looks like an ipv4 address
@@ -664,7 +661,7 @@ class NetironDriver(NetworkDriver):
                 bgp_data['global']['router_id'] = router_id
 
             # Neighbor Address  AS#         State   Time          Rt:Accepted Filtered Sent     ToSend
-            # 172.24.46.2       513         ESTAB   587d7h24m    0           0        255      0       
+            # 12.12.12.12       513         ESTAB   587d7h24m    0           0        255      0       
             # FIXME: uptime is not a single string!
             r2 = re.match(r'^\s+(?P<remote_addr>({}))\s+(?P<remote_as>({}))\s+(?P<state>\S+)\s+'
                                 r'(?P<uptime>\S+)'
@@ -675,7 +672,6 @@ class NetironDriver(NetworkDriver):
             if r2:
                 remote_addr = r2.group('remote_addr')
                 afi = "ipv4"
-                # FIXME: Confirm how to get received prefixes in MLXe
                 received_prefixes = int(r2.group('accepted_prefixes'))+int(r2.group('filtered_prefixes'))
                 bgp_data['global']['peers'][remote_addr] = {
                         'local_as': local_as,
@@ -705,7 +701,6 @@ class NetironDriver(NetworkDriver):
                 bgp_data['global']['peers'][remote_addr]['remote_id'] = remote_id
                 current = remote_addr
 
-            # line:       Description: ----> L513-B-RBRMX-2
             r2 = re.match(r'\s+Description:\s+(.*)', line)
             if r2:
                 description = r2.group(1)
