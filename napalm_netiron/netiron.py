@@ -532,7 +532,7 @@ class NetironDriver(NetworkDriver):
         command = 'show version'
         lines = self.device.send_command(command)
         for line in lines.splitlines():
-            r1 = re.match(r'^Chassis:\s+(.*)\s+\(Serial #:\s+(\S+),(.*)', line)
+            r1 = re.match(r'^(System|Chassis):\s+(.*)\s+\(Serial #:\s+(\S+),(.*)', line)
             if r1:
                 model = r1.group(1)
                 serial = r1.group(2)
