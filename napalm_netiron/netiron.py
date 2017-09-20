@@ -164,11 +164,14 @@ class NetironDriver(NetworkDriver):
             if r3:
                 mac = r3.group(1)
 
-            r4 = re.match(r"\s+Configured speed (\d+)(G|M)bit,.+", line)
+            r4 = re.match(r"\s+Configured speed ((\d+)(G|M)bit|(auto)),.+", line)
             if r4:
-                speed = int(r4.group(1))
-                if r4.group(2) == "G":
-                    speed = speed*1000
+                speed = r4.group(1)
+                if not 'auto' in speed:
+                    if r4.group(2) == "G":
+                        speed = int(speed)*1000
+                else:
+                    speed = -1
 
         return [last_flap, description, speed, mac]
 
@@ -280,7 +283,7 @@ class NetironDriver(NetworkDriver):
 
         for line in lines:
             fields = line.split()
-            mac_address = port = age = vlan = esi = None
+            #mac_address = port = age = vlan = esi = None
 
             if self.family == 'MLX':
                 if len(fields) == 4:
