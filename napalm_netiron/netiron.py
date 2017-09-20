@@ -235,7 +235,7 @@ class NetironDriver(NetworkDriver):
                    counters[interface]['tx_octets'] = octets.group(2)
                    continue
 
-                packets = re.match(r"\s+InPkts\s+(\d+)\s+OutPkts\s+(\d+)\.*", line)
+                packets = re.match(r"\s+InUnicastPkts\s+(\d+)\s+OutUnicastPkts\s+(\d+)\.*", line)
                 if packets:
                    counters[interface]['rx_unicast_packets'] = packets.group(1)
                    counters[interface]['tx_unicast_packets'] = packets.group(2)
@@ -273,27 +273,36 @@ class NetironDriver(NetworkDriver):
         lines = lines.split('\n')
 
         mac_address_table = []
-        lines = lines[5:]
+        if self.family == 'MLX':
+            lines = lines[5:]
+        else:
+            lines = lines[8:]
 
         for line in lines:
             fields = line.split()
 
-            if len(fields) == 4:
-                mac_address, port, age, vlan = fields
-            
-                is_static = bool('Static' in age)
-                mac_address = napalm_base.helpers.mac(mac_address)
+            mac_address = port = age = vlan = esi = None
+            if self.family == 'MLX':
+                if len(fields) == 4:
+                    mac_address, port, age, vlan = fields
+                    is_static = bool('Static' in age)
+            else:
+                if len(fields) == 5:
+                    mac_address, port, age, vlan, esi = fields
+                    is_static = bool('Static' in age)
 
-                entry = {
-                   'mac': mac_address,
-                   'interface': unicode(port),
-                   'vlan': int(vlan),
-                   'active': bool(1),
-                   'static': is_static,
-                   'moves': None,
-                   'last_move': None
-                }
-                mac_address_table.append(entry)
+            mac_address = napalm_base.helpers.mac(mac_address)
+
+            entry = {
+                'mac': mac_address,
+                'interface': unicode(port),
+                'vlan': int(vlan),
+                'active': bool(1),
+                'static': is_static,
+                'moves': None,
+                'last_move': None
+            }
+            mac_address_table.append(entry)
             
         return mac_address_table
 	           
