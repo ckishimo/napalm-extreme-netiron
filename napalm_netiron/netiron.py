@@ -54,6 +54,8 @@ class NetironDriver(NetworkDriver):
             raise ConnectionException("Cannot connect to switch: %s:%s" \
                                           % (self.hostname, self.port))
 
+        self._set_family()
+
     def close(self):
         self.device.disconnect()
         return
@@ -72,6 +74,15 @@ class NetironDriver(NetworkDriver):
             cli_output[command] = output
 
         return cli_output
+
+    def _set_family(self):
+        """ Set MLX or CER family  """
+        cmd = 'show version | include ^System'
+        output = self.device.send_command(cmd)
+        if 'MLX' in output:
+            self.family = 'MLX'
+        else:
+            self.family = 'CER'
 
     def get_arp_table(self):
 
