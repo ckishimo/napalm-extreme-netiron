@@ -280,17 +280,16 @@ class NetironDriver(NetworkDriver):
 
         for line in lines:
             fields = line.split()
-
             mac_address = port = age = vlan = esi = None
+
             if self.family == 'MLX':
                 if len(fields) == 4:
                     mac_address, port, age, vlan = fields
-                    is_static = bool('Static' in age)
             else:
                 if len(fields) == 5:
                     mac_address, port, age, vlan, esi = fields
-                    is_static = bool('Static' in age)
 
+            is_static = bool('Static' in age)
             mac_address = napalm_base.helpers.mac(mac_address)
 
             entry = {
