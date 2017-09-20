@@ -96,18 +96,20 @@ class NetironDriver(NetworkDriver):
                         "Unable to convert age value to float: {}".format(age)
                         )
 
-                if "None" in mac:
-                    mac = "00:00:00:00:00:00"
-                else:
-                    mac = napalm_base.helpers.mac(mac)
+                # Do not include 'Pending' entries
+                if typ == 'Dynamic' or typ == 'Static':
+                    if "None" in mac:
+                        mac = "00:00:00:00:00:00"
+                    else:
+                        mac = napalm_base.helpers.mac(mac)
 
-                entry = {
-                    'interface': interface,
-                    'mac': mac,
-                    'ip': address,
-                    'age': age
-                }
-                arp_table.append(entry)
+                    entry = {
+                        'interface': interface,
+                        'mac': mac,
+                        'ip': address,
+                        'age': age
+                    }
+                    arp_table.append(entry)
 
         return arp_table
 
