@@ -16,6 +16,8 @@
 
   This driver provides support for Netiron MLXe routers
 """
+import sys
+sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
 from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
 from napalm_base.exceptions import ConnectionException, MergeConfigException, \
@@ -43,7 +45,7 @@ class NetironDriver(NetworkDriver):
     def open(self):
         try:
             # FIXME: Needs to be changed to extreme_netiron (?)
-            self.device = ConnectHandler(device_type='brocade_netiron',
+            self.device = ConnectHandler(device_type='brocade_netiron_telnet',
                                          ip=self.hostname,
                                          port=self.port,
                                          username=self.username,
@@ -289,26 +291,28 @@ class NetironDriver(NetworkDriver):
         for line in lines:
             fields = line.split()
 
-            if self.family == 'MLX':
-                if len(fields) == 4:
-                    mac_address, port, age, vlan = fields
-            else:
-                if len(fields) == 5:
-                    mac_address, port, age, vlan, esi = fields
+            r1 = re.match("(\S+)\s+(\S+)\s+(Static|\d+)\s+(\d+).*", line)
+            if r1:
+                if self.family == 'MLX':
+                    if len(fields) == 4:
+                        mac_address, port, age, vlan = fields
+                else:
+                    if len(fields) == 5:
+                        mac_address, port, age, vlan, esi = fields
 
-            is_static = bool('Static' in age)
-            mac_address = napalm_base.helpers.mac(mac_address)
+                is_static = bool('Static' in age)
+                mac_address = napalm_base.helpers.mac(mac_address)
 
-            entry = {
-                'mac': mac_address,
-                'interface': unicode(port),
-                'vlan': int(vlan),
-                'active': bool(1),
-                'static': is_static,
-                'moves': None,
-                'last_move': None
-            }
-            mac_address_table.append(entry)
+                entry = {
+                    'mac': mac_address,
+                    'interface': unicode(port),
+                    'vlan': int(vlan),
+                    'active': bool(1),
+                    'static': is_static,
+                    'moves': None,
+                    'last_move': None
+                }
+                mac_address_table.append(entry)
             
         return mac_address_table
 	           
