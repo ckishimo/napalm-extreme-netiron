@@ -275,11 +275,7 @@ class NetironDriver(NetworkDriver):
         lines = lines.split('\n')
 
         mac_address_table = []
-        if self.family == 'MLX':
-            lines = lines[5:]
-        else:
-            lines = lines[8:]
-
+        # Headers may change whether there are static entries, is MLX or is CER
         for line in lines:
             fields = line.split()
 
