@@ -143,6 +143,7 @@ class NetironDriver(NetworkDriver):
         output = output.split('\n')
 
         last_flap = "0.0"
+        speed = "0"
         for line in output:
             # Port state change is only supported from >5.9? (no support in 5.7b)
             r0 = re.match(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", line)
@@ -157,6 +158,9 @@ class NetironDriver(NetworkDriver):
             r3 = re.match(r"\s+Hardware is \S+, address is (\S+) (.+)", line)
             if r3:
                 mac = r3.group(1)
+            # Empty modules may not report the speed
+            # Configured fiber speed auto, configured copper speed auto
+            # actual unknown, configured fiber duplex fdx, configured copper duplex fdx, actual unknown
             r4 = re.match(r"\s+Configured speed (\S+),.+", line)
             if r4:
                 speed = r4.group(1)
