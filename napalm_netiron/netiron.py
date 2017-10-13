@@ -490,10 +490,8 @@ class NetironDriver(NetworkDriver):
 
         ntp = {}
         for line in lines:
-
             if "!" in line:
                 return ntp
-
             match = re.match("\s+server\s+(\S+)(.*)", line)
             if match:
                 server = unicode(match.group(1))
@@ -511,7 +509,6 @@ class NetironDriver(NetworkDriver):
         for line in lines:
             if "!" in line:
                 return ntp
-
             match = re.match("\s+peer\s+(\S+)(.*)", line)
             if match:
                 peer = unicode(match.group(1))
