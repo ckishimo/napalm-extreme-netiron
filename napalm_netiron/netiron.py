@@ -105,17 +105,10 @@ class NetironDriver(NetworkDriver):
                         age = 0
                     age = float(age)
                 except ValueError:
-                    print(
-                        "Unable to convert age value to float: {}".format(age)
-                        )
+                    print("Unable to convert age value to float: {}".format(age))
 
                 # Do not include 'Pending' entries
                 if typ == 'Dynamic' or typ == 'Static':
-                    if "None" in mac:
-                        mac = "00:00:00:00:00:00"
-                    else:
-                        mac = napalm_base.helpers.mac(mac)
-
                     entry = {
                         'interface': interface,
                         'mac': mac,
