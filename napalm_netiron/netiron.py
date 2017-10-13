@@ -157,7 +157,7 @@ class NetironDriver(NetworkDriver):
             r1 = re.match(r"\s+No port name", line)
             if r1:
                 description = ""
-        
+
             r2 = re.match(r"\s+Port name is (.*)", line)
             if r2:
                 description = r2.group(1)
@@ -222,7 +222,7 @@ class NetironDriver(NetworkDriver):
                 'mac_address': unicode(port_detail[3]),
             }
         return interface_list
- 
+
     def get_interfaces_counters(self):
 
         cmd = "show statistics"
@@ -235,7 +235,7 @@ class NetironDriver(NetworkDriver):
             if port_block:
                 interface = port_block.group(1)
                 counters.setdefault(interface, {})
-            elif len(line)==0:
+            elif len(line) == 0:
                 continue
             else:
                 octets = re.match(r"\s+InOctets\s+(\d+)\s+OutOctets\s+(\d+)\.*", line)
@@ -312,7 +312,7 @@ class NetironDriver(NetworkDriver):
                     'last_move': None
                 }
                 mac_address_table.append(entry)
-            
+
         return mac_address_table
 
     def get_ntp_stats(self):
@@ -385,7 +385,7 @@ class NetironDriver(NetworkDriver):
         for line in lines:
             # Cannot distinguish what is portid and/or portdesc from "show lldp neighbors"
             # Need to parse "show lldp neighbors detail" instead...
-            r1 = re.match(r'^Local port: (\S+)',line)
+            r1 = re.match(r'^Local port: (\S+)', line)
             if r1:
                 if new_port == 1:
                     entry = {
@@ -399,10 +399,10 @@ class NetironDriver(NetworkDriver):
                 local_port = 'eth' + local_port
                 new_port = 1
 
-            r2 = re.match(r'^\s+\+ Port description\s+:\s+\"(.*)\"',line)
+            r2 = re.match(r'^\s+\+ Port description\s+:\s+\"(.*)\"', line)
             if r2:
                 port_desc = r2.group(1)
-            r3 = re.match(r'^\s+\+ System name\s+:\s+\"(.*)\"',line)
+            r3 = re.match(r'^\s+\+ System name\s+:\s+\"(.*)\"', line)
             if r3:
                 sys_name = r3.group(1)
 
@@ -413,7 +413,7 @@ class NetironDriver(NetworkDriver):
         }
         lldp.setdefault(local_port, [])
         lldp[local_port].append(entry)
-            
+
         return lldp
 
     def get_lldp_neighbors_detail(self, interface=''):
@@ -455,7 +455,7 @@ class NetironDriver(NetworkDriver):
         return lldp
 
     def get_config(self, retrieve='all'):
-        
+
         config = {
             'startup': '',
             'running': '',
@@ -471,7 +471,7 @@ class NetironDriver(NetworkDriver):
         return config
 
     def get_users(self):
-        
+
         command = 'show users'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -552,7 +552,7 @@ class NetironDriver(NetworkDriver):
             r1 = re.match(r'\s+Active MP(.*)Uptime\s+(\d+)\s+days'
                           r'\s+(\d+)\s+hours'
                           r'\s+(\d+)\s+minutes'
-                          r'\s+(\d+)\s+seconds',line)
+                          r'\s+(\d+)\s+seconds', line)
             if r1:
                 days = int(r1.group(2))
                 hours = int(r1.group(3))
@@ -566,7 +566,7 @@ class NetironDriver(NetworkDriver):
             r1 = re.match(r'^hostname (\S+)', line)
             if r1:
                 hostname = r1.group(1)
-                
+
         facts = {
             'uptime': uptime,
             'vendor': unicode(vendor),
@@ -727,7 +727,7 @@ class NetironDriver(NetworkDriver):
     def get_interfaces_ip(self):
 
         interfaces = {}
-       
+
         command = 'show ip interface'
         output = self.device.send_command(command)
         output = output.split('\n')
@@ -761,9 +761,9 @@ class NetironDriver(NetworkDriver):
                 if 'ip address ' in line:
                     fields = line.split()
                     # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary
-                    if len(fields) in [3,4]:
+                    if len(fields) in [3, 4]:
                         address, subnet = fields[2].split(r'/')
-                        interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
+                        interfaces[iface]['ipv4'][address] = {'prefix_length': subnet}
 
         command = 'show ipv6 interface'
         output = self.device.send_command(command)
@@ -782,14 +782,14 @@ class NetironDriver(NetworkDriver):
 
                 interfaces[port]['ipv6'] = dict()
                 interfaces[port]['ipv6'][address] = dict()
-                interfaces[port]['ipv6'][address] = { 'prefix_length': 'N/A' }
+                interfaces[port]['ipv6'][address] = {'prefix_length': 'N/A'}
 
             # Avoid matching: fd01:1458:300:2d::/64[Anycast]
             r2 = re.match(r'\s+(\S+)\/(\d+)\s*$', line)
             if r2:
                 address = r2.group(1)
                 subnet = r2.group(2)
-                interfaces[port]['ipv6'][address] = { 'prefix_length': subnet }
+                interfaces[port]['ipv6'][address] = {'prefix_length': subnet}
 
         return interfaces
 
@@ -809,7 +809,7 @@ class NetironDriver(NetworkDriver):
                 remote_address = r1.group('remote_address')
                 router_id = r1.group('router_id')
                 vrf = r1.group('vrf_name')
- 
+
             r2 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
                             r'\s+KeepAliveTime:\s+(\d+),'
                             r'\s+HoldTime:\s+(\d+)', line)
@@ -843,26 +843,26 @@ class NetironDriver(NetworkDriver):
         lines = lines[3:]
         for line in lines:
             # Power 2: Installed (Failed or Disconnected)
-            r1 = re.match(r'^Power\s+(\d+):\s+Installed \(Failed or Disconnected\)',line)
+            r1 = re.match(r'^Power\s+(\d+):\s+Installed \(Failed or Disconnected\)', line)
             # Power 7: (23-yyyyyyyy xxxxxxxxx  - AC 1800W): Installed (OK)
-            r2 = re.match(r'^Power\s+(\d+):\s+.*AC\s+(\S+)\): Installed \(OK\)',line)
+            r2 = re.match(r'^Power\s+(\d+):\s+.*AC\s+(\S+)\): Installed \(OK\)', line)
             if r1:
                 psu = r1.group(1)
                 environment[psu] = dict()
-                environment[psu] = { 'status': False, 'capacity': 'N/A', 'output': 'N/A' }
+                environment[psu] = {'status': False, 'capacity': 'N/A', 'output': 'N/A'}
             elif r2:
                 psu = r2.group(1)
                 environment[psu] = dict()
-                environment[psu] = { 'status': True, 'capacity': r2.group(2), 'output': 'N/A' }
+                environment[psu] = {'status': True, 'capacity': r2.group(2), 'output': 'N/A'}
 
             # Back Fan A-1: Status = OK, Speed = MED (60%)
-            r3 = re.match(r'^(.*):\s+Status = (\S+),\s+Speed\s+=\s+(\S+)\s+\((\d+)%\)',line)
+            r3 = re.match(r'^(.*):\s+Status = (\S+),\s+Speed\s+=\s+(\S+)\s+\((\d+)%\)', line)
             if r3:
                 fan = r3.group(1)
                 status = False
                 if r3.group(2) == "OK":
                     status = True
 
-                environment[fan] = { 'status': status }
+                environment[fan] = {'status': status}
 
         return environment
