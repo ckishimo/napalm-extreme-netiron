@@ -526,8 +526,8 @@ class NetironDriver(NetworkDriver):
         for line in lines.splitlines():
             r1 = re.match(r'^(System|Chassis):\s+(.*)\s+\(Serial #:\s+(\S+),(.*)', line)
             if r1:
-                model = r1.group(1)
-                serial = r1.group(2)
+                model = r1.group(2)
+                serial = r1.group(3)
 
             r2 = re.match(r'^IronWare : Version\s+(\S+)\s+Copyright \(c\)\s+(.*)', line)
             if r2:
