@@ -11,8 +11,8 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-""" 
-  Extreme-Netiron Driver 
+"""
+  Extreme-Netiron Driver
 
   This driver provides support for Netiron MLXe routers
 """
@@ -78,7 +78,7 @@ class NetironDriver(NetworkDriver):
         return cli_output
 
     def _set_family(self):
-        """ Set MLX or CER family  """
+        """ Set MLX or CER/CES family  """
         cmd = 'show version | include ^System'
         output = self.device.send_command(cmd)
         if 'MLX' in output:
@@ -128,7 +128,7 @@ class NetironDriver(NetworkDriver):
 
     def _parse_port_change(self, last_str):
 
-		#(3 days 11:27:46 ago)	
+		#(3 days 11:27:46 ago)
         r1 = re.match("(\d+) days (\d+):(\d+):(\d+)", last_str)
         if r1:
             days = int(r1.group(1))
@@ -176,9 +176,9 @@ class NetironDriver(NetworkDriver):
                     if r:
                         speed = r.group(1)
                         if r.group(2) == 'M':
-                            speed = int(speed) * 1000                            
+                            speed = int(speed) * 1000
                         elif r.group(2) == 'G':
-                            speed = int(speed) * 1000000                            
+                            speed = int(speed) * 1000000
 
         return [last_flap, description, speed, mac]
 
@@ -368,7 +368,7 @@ class NetironDriver(NetworkDriver):
         enabled_capabilities = re.search(r"\s+Enabled capabilities:\s+(.+)", output).group(1)
         remote_address = re.search(r"\s+\+ Management address \(IPv4\):\s+(.+)", output).group(1)
 
-        return [port_id, port_description, chassis_id, system_name, 
+        return [port_id, port_description, chassis_id, system_name,
             system_capabilities, enabled_capabilities, remote_address]
 
     def get_lldp_neighbors(self):
@@ -393,7 +393,7 @@ class NetironDriver(NetworkDriver):
                        'hostname': sys_name,
                        'port': port_desc
                    }
-                   lldp.setdefault(local_port, []) 
+                   lldp.setdefault(local_port, [])
                    lldp[local_port].append(entry)
 
                 local_port = r1.group(1)
@@ -412,14 +412,14 @@ class NetironDriver(NetworkDriver):
            'hostname': sys_name,
            'port': port_desc
         }
-        lldp.setdefault(local_port, []) 
+        lldp.setdefault(local_port, [])
         lldp[local_port].append(entry)
             
         return lldp
 
     def get_lldp_neighbors_detail(self, interface=''):
 
-        lldp = {}      
+        lldp = {}
         command = 'show lldp neighbors'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -431,11 +431,11 @@ class NetironDriver(NetworkDriver):
 
             # FIXME: portid, portdesc and name can be strings so it will not work for
             # 1/5      609c.9fde.1b14  Ethernet 0/47   Eth 0/47                Router1
-            # Need to parse show lldp neighbors detail        
+            # Need to parse show lldp neighbors detail
             if len(fields) == 5:
                 local_port, chassis, portid, portdesc, name = fields
 
-                lldp_detail = self._lldp_detail_parser(local_port)   
+                lldp_detail = self._lldp_detail_parser(local_port)
                 entry = {
                     'parent_interface': u'N/A',
                     'remote_port': unicode(lldp_detail[0]),
@@ -450,7 +450,7 @@ class NetironDriver(NetworkDriver):
                 if local_port == interface:
                     return {interface: lldp[local_port]}
 
-                lldp.setdefault(local_port, [])	
+                lldp.setdefault(local_port, [])
                 lldp[local_port].append(entry)
 
         return lldp
@@ -665,7 +665,7 @@ class NetironDriver(NetworkDriver):
                 bgp_data['global']['router_id'] = router_id
 
             # Neighbor Address  AS#         State   Time          Rt:Accepted Filtered Sent     ToSend
-            # 12.12.12.12       513         ESTAB   587d7h24m    0           0        255      0       
+            # 12.12.12.12       513         ESTAB   587d7h24m    0           0        255      0
             # FIXME: uptime is not a single string!
             r2 = re.match(r'^\s+(?P<remote_addr>({}))\s+(?P<remote_as>({}))\s+(?P<state>\S+)\s+'
                                 r'(?P<uptime>\S+)'
@@ -761,8 +761,8 @@ class NetironDriver(NetworkDriver):
 
                 if 'ip address ' in line:
                     fields = line.split()
-                    # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary                 
-                    if len(fields) in [3,4]:                     
+                    # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary
+                    if len(fields) in [3,4]:
                        address, subnet = fields[2].split(r'/')
                        interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
 
@@ -792,7 +792,7 @@ class NetironDriver(NetworkDriver):
                 subnet = r2.group(2)
                 interfaces[port]['ipv6'][address] = { 'prefix_length': subnet }
 
-        return interfaces     
+        return interfaces
 
     def get_bgp_neighbors_detail(self):
 
@@ -836,7 +836,7 @@ class NetironDriver(NetworkDriver):
     def get_environment(self, interface=''):
 
         # FIXME: Partial implementation
-        environment = {}      
+        environment = {}
         command = 'show chassis'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -864,6 +864,6 @@ class NetironDriver(NetworkDriver):
                 if r3.group(2) == "OK":
                     status = True
 
-                environment[fan] = { 'status': status } 
+                environment[fan] = { 'status': status }
 
         return environment
