@@ -198,6 +198,7 @@ class NetironDriver(NetworkDriver):
 
             # Physical interfaces only
             if re.match("\d+/\d+|mgmt1", port):
+                # FIXME: quite slow...
                 port_detail = self._get_interface_detail(port)
 
                 state = state.lower()
