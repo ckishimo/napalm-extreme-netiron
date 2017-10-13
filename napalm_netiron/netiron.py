@@ -128,7 +128,7 @@ class NetironDriver(NetworkDriver):
 
     def _parse_port_change(self, last_str):
 
-		#(3 days 11:27:46 ago)
+        #(3 days 11:27:46 ago)
         r1 = re.match("(\d+) days (\d+):(\d+):(\d+)", last_str)
         if r1:
             days = int(r1.group(1))
@@ -138,7 +138,7 @@ class NetironDriver(NetworkDriver):
 
             return float(secs + (mins*60) + (hours*60*60) + (days*24*60*60))
         else:
-        	return (float(-1.0))
+            return (float(-1.0))
 
     def _get_interface_detail(self, port):
 
@@ -210,7 +210,6 @@ class NetironDriver(NetworkDriver):
 
                 link = link.lower()
                 is_enabled = not bool('disabled' in link)
-            	
             else:
                 continue
 
@@ -241,38 +240,38 @@ class NetironDriver(NetworkDriver):
             else:
                 octets = re.match(r"\s+InOctets\s+(\d+)\s+OutOctets\s+(\d+)\.*", line)
                 if octets:
-                   counters[interface]['rx_octets'] = octets.group(1)
-                   counters[interface]['tx_octets'] = octets.group(2)
-                   continue
+                    counters[interface]['rx_octets'] = octets.group(1)
+                    counters[interface]['tx_octets'] = octets.group(2)
+                    continue
 
                 packets = re.match(r"\s+InUnicastPkts\s+(\d+)\s+OutUnicastPkts\s+(\d+)\.*", line)
                 if packets:
-                   counters[interface]['rx_unicast_packets'] = packets.group(1)
-                   counters[interface]['tx_unicast_packets'] = packets.group(2)
-                   continue
+                    counters[interface]['rx_unicast_packets'] = packets.group(1)
+                    counters[interface]['tx_unicast_packets'] = packets.group(2)
+                    continue
 
                 broadcast = re.match(r"\s+InBroadcastPkts\s+(\d+)\s+OutBroadcastPkts\s+(\d+)\.*", line)
                 if broadcast:
-                   counters[interface]['rx_broadcast_packets'] = broadcast.group(1)
-                   counters[interface]['tx_broadcast_packets'] = broadcast.group(2)
-                   continue
+                    counters[interface]['rx_broadcast_packets'] = broadcast.group(1)
+                    counters[interface]['tx_broadcast_packets'] = broadcast.group(2)
+                    continue
 
                 multicast = re.match(r"\s+InMulticastPkts\s+(\d+)\s+OutMulticastPkts\s+(\d+)\.*", line)
                 if multicast:
-                   counters[interface]['rx_multicast_packets'] = multicast.group(1)
-                   counters[interface]['tx_multicast_packets'] = multicast.group(2)
-                   continue
+                    counters[interface]['rx_multicast_packets'] = multicast.group(1)
+                    counters[interface]['tx_multicast_packets'] = multicast.group(2)
+                    continue
 
                 error = re.match(r"\s+InErrors\s+(\d+)\s+OutErrors\s+(\d+)\.*", line)
                 if error:
-                   counters[interface]['rx_errors'] = error.group(1)
-                   counters[interface]['tx_errors'] = error.group(2)
-                   continue
+                    counters[interface]['rx_errors'] = error.group(1)
+                    counters[interface]['tx_errors'] = error.group(2)
+                    continue
 
                 discard = re.match(r"\s+InDiscards\s+(\d+)\s+OutDiscards\s+(\d+)\.*", line)
                 if discard:
-                   counters[interface]['rx_discards'] = discard.group(1)
-                   counters[interface]['tx_discards'] = discard.group(2)
+                    counters[interface]['rx_discards'] = discard.group(1)
+                    counters[interface]['tx_discards'] = discard.group(2)
 
         return counters
 
@@ -315,7 +314,7 @@ class NetironDriver(NetworkDriver):
                 mac_address_table.append(entry)
             
         return mac_address_table
-	           
+
     def get_ntp_stats(self):
 
         output = self.device.send_command("show ntp associations")
@@ -389,12 +388,12 @@ class NetironDriver(NetworkDriver):
             r1 = re.match(r'^Local port: (\S+)',line)
             if r1:
                 if new_port == 1:
-                   entry = {
+                    entry = {
                        'hostname': sys_name,
                        'port': port_desc
-                   }
-                   lldp.setdefault(local_port, [])
-                   lldp[local_port].append(entry)
+                    }
+                    lldp.setdefault(local_port, [])
+                    lldp[local_port].append(entry)
 
                 local_port = r1.group(1)
                 local_port = 'eth' + local_port
@@ -504,32 +503,32 @@ class NetironDriver(NetworkDriver):
         for line in lines:
 
             if "!" in line:
-    		   return ntp
+                return ntp
 
             match = re.match("\s+server\s+(\S+)(.*)", line)
             if match:
-               server = unicode(match.group(1))
-               ntp[server] = {}
+                server = unicode(match.group(1))
+                ntp[server] = {}
 
         return ntp
 
     def get_ntp_peers(self):
 
-    	command = "show running | begin ^ntp"
-    	lines = self.device.send_command(command)
-    	lines = lines.split("\n")
+        command = "show running | begin ^ntp"
+        lines = self.device.send_command(command)
+        lines = lines.split("\n")
 
         ntp = {}
-    	for line in lines:
+        for line in lines:
             if "!" in line:
-    		   return ntp
+                return ntp
 
             match = re.match("\s+peer\s+(\S+)(.*)", line)
             if match:
                 peer = unicode(match.group(1))
                 ntp[peer] = {}
 
-    	return ntp
+        return ntp
 
     def get_facts(self):
 
@@ -737,13 +736,13 @@ class NetironDriver(NetworkDriver):
         for line in output:
             fields = line.split()
             if len(fields) == 8:
-               iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
-               port = iface + ifaceid
-               if port not in interfaces:
-                  interfaces[port] = dict()
+                iface, ifaceid, address, ok, nvram, status, protocol, vrf = fields
+                port = iface + ifaceid
+                if port not in interfaces:
+                    interfaces[port] = dict()
 
-               interfaces[port]['ipv4'] = dict()
-               interfaces[port]['ipv4'][address] = dict()
+                interfaces[port]['ipv4'] = dict()
+                interfaces[port]['ipv4'][address] = dict()
 
         # Get the prefix from the running-config interface in a single call
         iface = ""
@@ -763,8 +762,8 @@ class NetironDriver(NetworkDriver):
                     fields = line.split()
                     # ip address a.b.c.d/x ospf-ignore|ospf-passive|secondary
                     if len(fields) in [3,4]:
-                       address, subnet = fields[2].split(r'/')
-                       interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
+                        address, subnet = fields[2].split(r'/')
+                        interfaces[iface]['ipv4'][address] = { 'prefix_length': subnet }
 
         command = 'show ipv6 interface'
         output = self.device.send_command(command)
@@ -775,15 +774,15 @@ class NetironDriver(NetworkDriver):
         for line in output:
             r1 = re.match(r'^(\S+)\s+(\S+).*fe80::(\S+).*', line)
             if r1:
-               port = r1.group(1) + r1.group(2)
-               address = "fe80::" + r1.group(3)
-               if port not in interfaces:
-                  # Interface with ipv6 only configuration
-                  interfaces[port] = dict()
+                port = r1.group(1) + r1.group(2)
+                address = "fe80::" + r1.group(3)
+                if port not in interfaces:
+                    # Interface with ipv6 only configuration
+                    interfaces[port] = dict()
 
-               interfaces[port]['ipv6'] = dict()
-               interfaces[port]['ipv6'][address] = dict()
-               interfaces[port]['ipv6'][address] = { 'prefix_length': 'N/A' }
+                interfaces[port]['ipv6'] = dict()
+                interfaces[port]['ipv6'][address] = dict()
+                interfaces[port]['ipv6'][address] = { 'prefix_length': 'N/A' }
 
             # Avoid matching: fd01:1458:300:2d::/64[Anycast]
             r2 = re.match(r'\s+(\S+)\/(\d+)\s*$', line)
