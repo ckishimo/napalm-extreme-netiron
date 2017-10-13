@@ -142,23 +142,21 @@ class NetironDriver(NetworkDriver):
         output = self.device.send_command(command)
         output = output.split('\n')
 
+        last_flap = "0.0"
         for line in output:
+            # Port state change is only supported from >5.9? (no support in 5.7b)
             r0 = re.match(r"\s+Port state change time: \S+\s+\d+\s+\S+\s+\((.*) ago\)", line)
             if r0:
                 last_flap = self._parse_port_change(r0.group(1))
-
             r1 = re.match(r"\s+No port name", line)
             if r1:
                 description = ""
-
             r2 = re.match(r"\s+Port name is (.*)", line)
             if r2:
                 description = r2.group(1)
-
             r3 = re.match(r"\s+Hardware is \S+, address is (\S+) (.+)", line)
             if r3:
                 mac = r3.group(1)
-
             r4 = re.match(r"\s+Configured speed (\S+),.+", line)
             if r4:
                 speed = r4.group(1)
