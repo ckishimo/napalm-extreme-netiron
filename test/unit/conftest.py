@@ -5,14 +5,11 @@ from __future__ import unicode_literals
 from builtins import super
 
 import pytest
-import json
 
 from napalm_base.test import conftest as parent_conftest
-
 from napalm_base.test.double import BaseTestDouble
-from napalm_base.utils import py23_compat
+from napalm_netiron import netiron
 
-from napalm_netiron import netiron 
 
 @pytest.fixture(scope='class')
 def set_device_parameters(request):
@@ -25,6 +22,7 @@ def set_device_parameters(request):
     request.cls.patched_driver = PatchedNetironDriver
     request.cls.vendor = 'netiron'
     parent_conftest.set_device_parameters(request)
+
 
 def pytest_generate_tests(metafunc):
     """Generate test cases dynamically."""

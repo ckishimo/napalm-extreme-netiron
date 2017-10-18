@@ -14,18 +14,21 @@
 
 import re
 import sys
-sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
+import napalm_base.helpers
 from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
 from napalm_base.exceptions import ConnectionException
-import napalm_base.helpers
-class NetironDriver(NetworkDriver):
+sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
 
+IPV4_ADDR_REGEX = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+ASN_REGEX = r"[\d\.]+"
+
+
+class NetironDriver(NetworkDriver):
     """Napalm Driver for Vendor Extreme/Netiron."""
+
     def __init__(self, hostname, username, password, timeout=60, optional_args=None):
-        """
-        Initialize Netiron driver.
-        """
+        """Initialize Netiron driver."""
         if optional_args is None:
             optional_args = {}
 
@@ -37,6 +40,7 @@ class NetironDriver(NetworkDriver):
         self.port = optional_args.get('port', 22)
 
     def open(self):
+        """Open the connection with the device."""
         try:
             # FIXME: Needs to be changed to extreme_netiron (?)
             self.device = ConnectHandler(device_type='brocade_netiron_telnet',
@@ -47,18 +51,17 @@ class NetironDriver(NetworkDriver):
                                          timeout=self.timeout,
                                          verbose=True)
         except Exception:
-            raise ConnectionException("Cannot connect to switch: %s:%s"
-                                          % (self.hostname, self.port))
+            raise ConnectionException("Cannot connect to switch: %s:%s" % (self.hostname, self.port))
 
         self._set_family()
 
     def close(self):
-        """close method."""
+        """Close method."""
         self.device.disconnect()
         return
 
     def cli(self, commands):
-        """cli method."""
+        """Cli method."""
         cli_output = dict()
 
         if type(commands) is not list:
@@ -116,8 +119,6 @@ class NetironDriver(NetworkDriver):
         return arp_table
 
     def _parse_port_change(self, last_str):
-
-        #(3 days 11:27:46 ago)
         r1 = re.match("(\d+) days (\d+):(\d+):(\d+)", last_str)
         if r1:
             days = int(r1.group(1))
@@ -695,8 +696,8 @@ class NetironDriver(NetworkDriver):
 
             # line:    State: ESTABLISHED, Time: 587d7h24m52s, KeepAliveTime: 10, HoldTime: 30
             r3 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
-                            r'\s+KeepAliveTime:\s+(\d+),'
-                            r'\s+HoldTime:\s+(\d+)', line)
+                          r'\s+KeepAliveTime:\s+(\d+),'
+                          r'\s+HoldTime:\s+(\d+)', line)
             if r3:
                 # FIXME: compute is_up, is_enabled
                 is_up = 1
@@ -790,13 +791,14 @@ class NetironDriver(NetworkDriver):
                           r'\s+\((IBGP|EBGP)\), RouterID:\s+(?P<router_id>({})),'
                           r'\s+VRF:\s+(?P<vrf_name>\S+)'.format(IPV4_ADDR_REGEX, ASN_REGEX, IPV4_ADDR_REGEX), line)
             if r1:
-                remote_address = r1.group('remote_address')
+                # unused remote_address = r1.group('remote_address')
                 # unused outer_id = r1.group('router_id')
                 # unused vrf = r1.group('vrf_name')
+                pass
 
             r2 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
-                            r'\s+KeepAliveTime:\s+(\d+),'
-                            r'\s+HoldTime:\s+(\d+)', line)
+                          r'\s+KeepAliveTime:\s+(\d+),'
+                          r'\s+HoldTime:\s+(\d+)', line)
             if r2:
                 # unused connection_state = r2.group(1)
                 # unused uptime = r2.group(2)
