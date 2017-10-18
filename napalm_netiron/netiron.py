@@ -1,4 +1,3 @@
-"""
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.  You may obtain a copy of
 # the License at
@@ -10,21 +9,23 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations under
 # the License.
-#
-#  Extreme-Netiron Driver
-#  This driver provides support for Netiron MLXe routers
-"""
+
+"""Driver for Extreme / Netiron devices."""
+
 import re
 import sys
 sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
 from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
+from napalm_base.exceptions import ConnectionException
 import napalm_base.helpers
 class NetironDriver(NetworkDriver):
 
     """Napalm Driver for Vendor Extreme/Netiron."""
     def __init__(self, hostname, username, password, timeout=60, optional_args=None):
-        """init method."""
+        """
+        Initialize Netiron driver.
+        """
         if optional_args is None:
             optional_args = {}
 
@@ -46,7 +47,7 @@ class NetironDriver(NetworkDriver):
                                          timeout=self.timeout,
                                          verbose=True)
         except Exception:
-            raise ConnectionException("Cannot connect to switch: %s:%s" \
+            raise ConnectionException("Cannot connect to switch: %s:%s"
                                           % (self.hostname, self.port))
 
         self._set_family()
@@ -215,7 +216,7 @@ class NetironDriver(NetworkDriver):
         return interface_list
 
     def get_interfaces_counters(self):
-        """ get_interfaces_counterd method. """
+        """get_interfaces_counterd method."""
         cmd = "show statistics"
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
@@ -354,7 +355,7 @@ class NetironDriver(NetworkDriver):
         remote_address = re.search(r"\s+\+ Management address \(IPv4\):\s+(.+)", output).group(1)
 
         return [port_id, port_description, chassis_id, system_name,
-            system_capabilities, enabled_capabilities, remote_address]
+                system_capabilities, enabled_capabilities, remote_address]
 
     def get_lldp_neighbors(self):
         """get_lldp_neighbors method."""
@@ -403,7 +404,7 @@ class NetironDriver(NetworkDriver):
         return lldp
 
     def get_lldp_neighbors_detail(self, interface=''):
-        """get_lldp_neighbors_detail() method."""
+        """get_lldp_neighbors_detail method."""
         lldp = {}
         command = 'show lldp neighbors'
         lines = self.device.send_command(command)
@@ -467,7 +468,7 @@ class NetironDriver(NetworkDriver):
         for line in lines:
             match = re.match("(\S+)\s+(\S+)\s+(\S+)\s+(\d+)", line)
             if match:
-                user  = match.group(1)
+                user = match.group(1)
                 passw = match.group(2)
                 level = match.group(4)
 
@@ -589,7 +590,7 @@ class NetironDriver(NetworkDriver):
         return facts
 
     def get_network_instances(self):
-
+        """get_network_instances method."""
         vrfs = {}
 
         command = 'show vrf'
@@ -599,7 +600,7 @@ class NetironDriver(NetworkDriver):
             r1 = re.match(r'^(\S+)\s+(\d+):(\d+).*', line)
             if r1:
                 name = r1.group(1)
-                rd = u'{}.{}'.format(r1.group(2), r1.group(3))
+                # Unused rd = u'{}.{}'.format(r1.group(2), r1.group(3))
 
                 command = "show vrf {}".format(name)
                 vlines = self.device.send_command(command)
@@ -622,6 +623,7 @@ class NetironDriver(NetworkDriver):
         return vrfs
 
     def get_bgp_neighbors(self):
+        """get_bgp_neighbors method, partially implemented."""
         # FIXME: No VRF support and no IPv6 support for the time being
         # FIXME: Move the following expressions elsewhere
         IP_ADDR_REGEX = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
@@ -650,11 +652,11 @@ class NetironDriver(NetworkDriver):
             # 12.12.12.12       513         ESTAB   587d7h24m    0           0        255      0
             # FIXME: uptime is not a single string!
             r2 = re.match(r'^\s+(?P<remote_addr>({}))\s+(?P<remote_as>({}))\s+(?P<state>\S+)\s+'
-                                r'(?P<uptime>\S+)'
-                                r'\s+(?P<accepted_prefixes>\d+)'
-                                r'\s+(?P<filtered_prefixes>\d+)'
-                                r'\s+(?P<sent_prefixes>\d+)'
-                                r'\s+(?P<tosend_prefixes>\d+)'.format(IPV4_ADDR_REGEX, ASN_REGEX), line)
+                          r'(?P<uptime>\S+)'
+                          r'\s+(?P<accepted_prefixes>\d+)'
+                          r'\s+(?P<filtered_prefixes>\d+)'
+                          r'\s+(?P<sent_prefixes>\d+)'
+                          r'\s+(?P<tosend_prefixes>\d+)'.format(IPV4_ADDR_REGEX, ASN_REGEX), line)
             if r2:
                 remote_addr = r2.group('remote_addr')
                 afi = "ipv4"
@@ -682,7 +684,6 @@ class NetironDriver(NetworkDriver):
             if r1:
                 remote_addr = r1.group('remote_addr')
                 remote_id = r1.group('remote_id')
-                vrf = r1.group('vrf_name')
                 bgp_data['global']['peers'][remote_addr]['remote_as'] = r1.group('remote_as')
                 bgp_data['global']['peers'][remote_addr]['remote_id'] = remote_id
                 current = remote_addr
@@ -708,7 +709,7 @@ class NetironDriver(NetworkDriver):
         return bgp_data
 
     def get_interfaces_ip(self):
-
+        """get_interfaces_ip method."""
         interfaces = {}
 
         command = 'show ip interface'
@@ -777,7 +778,7 @@ class NetironDriver(NetworkDriver):
         return interfaces
 
     def get_bgp_neighbors_detail(self):
-
+        """get_bgp_neighbors_detail method."""
         bgp_data = dict()
         bgp_data['global'] = dict()
 
@@ -790,33 +791,36 @@ class NetironDriver(NetworkDriver):
                           r'\s+VRF:\s+(?P<vrf_name>\S+)'.format(IPV4_ADDR_REGEX, ASN_REGEX, IPV4_ADDR_REGEX), line)
             if r1:
                 remote_address = r1.group('remote_address')
-                router_id = r1.group('router_id')
-                vrf = r1.group('vrf_name')
+                # unused outer_id = r1.group('router_id')
+                # unused vrf = r1.group('vrf_name')
 
             r2 = re.match(r'\s+State:\s+(\S+),\s+Time:\s+(\S+),'
                             r'\s+KeepAliveTime:\s+(\d+),'
                             r'\s+HoldTime:\s+(\d+)', line)
             if r2:
-                connection_state = r2.group(1)
-                uptime = r2.group(2)
-                keepalive = r2.group(3)
-                holdtime = r2.group(4)
+                # unused connection_state = r2.group(1)
+                # unused uptime = r2.group(2)
+                # unused keepalive = r2.group(3)
+                # unused holdtime = r2.group(4)
+                pass
 
             # Local host:  172.24.46.1, Local  Port: 8033
             # Remote host: 172.24.46.11, Remote Port: 179
             r3 = re.match(r'\s+(Remote|Local) host:\s+(\S+),\s+(Remote|Local)\s+Port:\s+(\d+),', line)
             if r3:
                 if r3.group(1) == "Remote":
-                    remote_port = r3.group(4)
-                    remote_address = r3.group(2)
+                    # remote_port = r3.group(4)
+                    # remote_address = r3.group(2)
+                    pass
                 elif r3.group(1) == "Local":
-                    local_port = r3.group(4)
-                    local_address = r3.group(2)
+                    # local_port = r3.group(4)
+                    # local_address = r3.group(2)
+                    pass
 
         return bgp_data
 
     def get_environment(self, interface=''):
-
+        """get_environment method."""
         # FIXME: Partial implementation
         environment = {}
         command = 'show chassis'
