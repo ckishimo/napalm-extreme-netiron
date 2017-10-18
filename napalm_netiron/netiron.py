@@ -1,4 +1,4 @@
-#
+"""
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.  You may obtain a copy of
 # the License at
@@ -10,28 +10,21 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 # License for the specific language governing permissions and limitations under
 # the License.
-
+#
+#  Extreme-Netiron Driver
+#  This driver provides support for Netiron MLXe routers
 """
-  Extreme-Netiron Driver
-
-  This driver provides support for Netiron MLXe routers
-"""
+import re
 import sys
 sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
 from netmiko import ConnectHandler
 from napalm_base.base import NetworkDriver
-from napalm_base.exceptions import ConnectionException, MergeConfigException, \
-    ReplaceConfigException, SessionLockedException, CommandErrorException
 import napalm_base.helpers
-
-import re
-
 class NetironDriver(NetworkDriver):
+
     """Napalm Driver for Vendor Extreme/Netiron."""
-
-    def __init__(self, hostname, username, password, timeout=60,
-                 optional_args=None):
-
+    def __init__(self, hostname, username, password, timeout=60, optional_args=None):
+        """init method."""
         if optional_args is None:
             optional_args = {}
 
@@ -59,10 +52,12 @@ class NetironDriver(NetworkDriver):
         self._set_family()
 
     def close(self):
+        """close method."""
         self.device.disconnect()
         return
 
     def cli(self, commands):
+        """cli method."""
         cli_output = dict()
 
         if type(commands) is not list:
@@ -78,7 +73,7 @@ class NetironDriver(NetworkDriver):
         return cli_output
 
     def _set_family(self):
-        """ Set MLX or CER/CES family  """
+        """Set MLX or CER/CES family."""
         cmd = 'show version | include ^System'
         output = self.device.send_command(cmd)
         if 'MLX' in output:
@@ -87,7 +82,7 @@ class NetironDriver(NetworkDriver):
             self.family = 'CER'
 
     def get_arp_table(self):
-
+        """get_arp_table method."""
         arp_table = list()
 
         arp_cmd = 'show arp'
@@ -178,7 +173,7 @@ class NetironDriver(NetworkDriver):
         return [last_flap, description, speed, mac]
 
     def get_interfaces(self):
-
+        """get_interfaces method."""
         interface_list = {}
 
         iface_cmd = 'show interface brief wide'
@@ -220,7 +215,7 @@ class NetironDriver(NetworkDriver):
         return interface_list
 
     def get_interfaces_counters(self):
-
+        """ get_interfaces_counterd method. """
         cmd = "show statistics"
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
@@ -272,7 +267,7 @@ class NetironDriver(NetworkDriver):
         return counters
 
     def get_mac_address_table(self):
-
+        """get_mac_address_table method."""
         cmd = "show mac-address"
         lines = self.device.send_command(cmd)
         lines = lines.split('\n')
@@ -308,7 +303,7 @@ class NetironDriver(NetworkDriver):
         return mac_address_table
 
     def get_ntp_stats(self):
-
+        """get_ntp_stats method."""
         output = self.device.send_command("show ntp associations")
         output = output.split("\n")
 
@@ -346,8 +341,7 @@ class NetironDriver(NetworkDriver):
         return ntp_stats
 
     def _lldp_detail_parser(self, interface):
-        """ Parse a single detailed entry """
-
+        """Parse a single detailed entry."""
         command = "show lldp neighbors detail ports eth {}".format(interface)
         output = self.device.send_command(command)
 
@@ -363,7 +357,7 @@ class NetironDriver(NetworkDriver):
             system_capabilities, enabled_capabilities, remote_address]
 
     def get_lldp_neighbors(self):
-
+        """get_lldp_neighbors method."""
         command = 'show lldp neighbors detail'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -409,7 +403,7 @@ class NetironDriver(NetworkDriver):
         return lldp
 
     def get_lldp_neighbors_detail(self, interface=''):
-
+        """get_lldp_neighbors_detail() method."""
         lldp = {}
         command = 'show lldp neighbors'
         lines = self.device.send_command(command)
@@ -447,7 +441,7 @@ class NetironDriver(NetworkDriver):
         return lldp
 
     def get_config(self, retrieve='all'):
-
+        """get_config method."""
         config = {
             'startup': '',
             'running': '',
@@ -463,7 +457,7 @@ class NetironDriver(NetworkDriver):
         return config
 
     def get_users(self):
-
+        """get_users method."""
         command = 'show users'
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -486,7 +480,7 @@ class NetironDriver(NetworkDriver):
         return info
 
     def get_ntp_servers(self):
-
+        """get_ntp_servers method."""
         command = "show running | begin ^ntp"
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -503,7 +497,7 @@ class NetironDriver(NetworkDriver):
         return ntp
 
     def get_ntp_peers(self):
-
+        """get_ntp_peers method."""
         command = "show running | begin ^ntp"
         lines = self.device.send_command(command)
         lines = lines.split("\n")
@@ -520,7 +514,7 @@ class NetironDriver(NetworkDriver):
         return ntp
 
     def get_facts(self):
-
+        """get_facts method."""
         command = 'show version'
         lines = self.device.send_command(command)
         for line in lines.splitlines():
