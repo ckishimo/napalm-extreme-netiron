@@ -634,6 +634,7 @@ class NetironDriver(NetworkDriver):
                 u'route_distinguisher': 'None',
             },
             u'interfaces': {
+                # FIXME: How to get interfaces in default vrf
                 u'interface': {
                 },
             },
