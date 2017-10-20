@@ -627,6 +627,18 @@ class NetironDriver(NetworkDriver):
                     },
                 }
 
+        vrfs[u'default'] = {
+            u'name': u'default',
+            u'type': u'DEFAULT_INSTANCE',
+            u'state': {
+                u'route_distinguisher': 'None',
+            },
+            u'interfaces': {
+                u'interface': {
+                },
+            },
+        }
+
         return vrfs
 
     def get_bgp_neighbors(self):
