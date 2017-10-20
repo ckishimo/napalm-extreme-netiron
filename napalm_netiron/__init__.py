@@ -13,4 +13,4 @@
 # the License.
 
 """napalm-extreme-netiron package."""
-# from napalm_netiron.netiron import NetironDriver
+from napalm_netiron.netiron import NetironDriver
