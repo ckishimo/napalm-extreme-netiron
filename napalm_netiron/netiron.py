@@ -598,28 +598,34 @@ class NetironDriver(NetworkDriver):
         lines = self.device.send_command(command)
         lines = lines[3:-3]
         for line in lines.splitlines():
-            r1 = re.match(r'^(\S+)\s+(\d+):(\d+).*', line)
+            r1 = re.match(r'^(\S+)\s+(\d+).(\d+).(\d+).(\d+):(\d+)\s+(\S+)\s+(A|D|I)\s+.*', line)
             if r1:
                 name = r1.group(1)
-                # Unused rd = u'{}.{}'.format(r1.group(2), r1.group(3))
-
+                rd = u'{}.{}.{}.{}:{}'.format(r1.group(2), r1.group(3), r1.group(4), r1.group(5), r1.group(6))
                 command = "show vrf {}".format(name)
                 vlines = self.device.send_command(command)
-                for l in vlines.splitlines():
-                    continue
+                flag = 0
+                all_interfaces = list()
+                for linevrf in vlines.splitlines():
+                    if flag == 1:
+                        # This line contains all interfaces
+                        all_interfaces = linevrf.split()
+                        break
+                    if 'Interfaces:' in linevrf:
+                        flag = 1
 
-        vrfs[u'default'] = {
-            u'name': u'default',
-            u'type': u'DEFAULT_INSTANCE',
-            u'state': {
-                u'route_distinguisher': None,
-            },
-            u'interfaces': {
-                u'interface': {
-                    #k: {} for k in all_interfaces if k not in all_vrf_interfaces.keys()
-                },
-            },
-        }
+                vrfs[name] = {
+                    u'name': name,
+                    u'type': u'Unknown',
+                    u'state': {
+                        u'route_distinguisher': rd,
+                    },
+                    u'interfaces': {
+                        u'interface': {
+                            k: {} for k in all_interfaces
+                        },
+                    },
+                }
 
         return vrfs
 
