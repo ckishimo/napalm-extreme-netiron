@@ -603,7 +603,7 @@ class NetironDriver(NetworkDriver):
         vrfs = {}
 
         cmd = 'show vrf'
-        lines = self.device.send_command(cmdd)
+        lines = self.device.send_command(cmd)
         lines = lines[3:-3]
         for line in lines.splitlines():
             r1 = re.match(r'^(\S+)\s+(\d+).(\d+).(\d+).(\d+):(\d+)\s+(\S+)\s+(A|D|I)\s+.*', line)
