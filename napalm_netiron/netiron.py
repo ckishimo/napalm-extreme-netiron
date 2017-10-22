@@ -80,9 +80,9 @@ class NetironDriver(NetworkDriver):
         """Set MLX or CER/CES family type"""
         cmd = 'show version | include ^System'
         output = self.device.send_command(cmd)
-        if 'MLX' in output:
+        if 'XM' in output:
             self.family = 'MLX'
-        else:
+        elif 'CE' in output:
             self.family = 'CER'
         else:
             raise ValueError(u"Unknown device: %s" % output)
