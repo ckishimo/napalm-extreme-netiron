@@ -875,11 +875,11 @@ class NetironDriver(NetworkDriver):
                 values.reverse()
                 
                 if values[0] == 0:
-                    laser_bias_current, output_power, input_power = 0, None, values[1]
+                    laser_bias_current, output_power, input_power = 0.0, 0.0, values[1]
                 else:
                     laser_bias_current, output_power, input_power = values[0], values[2], values[1]
             else:
-                laser_bias_current, output_power, input_power = None, None, None
+                laser_bias_current, output_power, input_power = 0.0, 0.0, 0.0
 
             optic.update({interface: {'physical_channels': {'channel': [{'index': 0, 'state': {'input_power': {'instant': input_power}, 'output_power': {'instant': output_power}, 'laser_bias_current': {'instant': laser_bias_current}}}]}}})
 
