@@ -13,7 +13,6 @@ List of current unsupported methods:
 - get_bgp_config
 - get_route_to
 - get_snmp_information
-- get_optics
 - ping
 - traceroute
 - get_firewall_policies
