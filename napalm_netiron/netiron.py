@@ -110,7 +110,7 @@ class NetironDriver(NetworkDriver):
 
                 # Do not include 'Pending' entries
                 if type == 'Dynamic' or type == 'Static':
-                   entry = {
+                    entry = {
                         'interface': interface,
                         'mac': mac,
                         'ip': address,
