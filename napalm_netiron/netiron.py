@@ -83,11 +83,15 @@ class NetironDriver(NetworkDriver):
         else:
             self.family = 'CER'
 
-    def get_arp_table(self):
+    def get_arp_table(self, vrf=C.ARP_VRF):
         """get_arp_table method."""
         arp_table = list()
 
-        arp_cmd = 'show arp'
+        if rf:
+            arp_cmd = 'show arp vrf {} | exclude Incomplete'.format(vrf)
+        else:
+            arp_cmd = 'show arp | exclude Incomplete'
+
         output = self.device.send_command(arp_cmd)
         output = output.split('\n')
         output = output[7:]
