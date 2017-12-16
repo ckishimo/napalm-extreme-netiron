@@ -14,11 +14,10 @@
 
 import re
 import sys
-import napalm_base.helpers
+import napalm.base.helpers
 from netmiko import ConnectHandler
-from napalm_base.base import NetworkDriver
-from napalm_base.exceptions import ConnectionException
-sys.path.append('/home/ckishimo/python/git/telnet/netmiko')
+from napalm.base.base import NetworkDriver
+from napalm.base.exceptions import ConnectionException
 
 IPV4_ADDR_REGEX = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
 ASN_REGEX = r"[\d\.]+"
@@ -42,8 +41,7 @@ class NetironDriver(NetworkDriver):
     def open(self):
         """Open the connection with the device."""
         try:
-            # FIXME: Needs to be changed to extreme_netiron (?)
-            self.device = ConnectHandler(device_type='brocade_netiron_telnet',
+            self.device = ConnectHandler(device_type='brocade_netiron',
                                          ip=self.hostname,
                                          port=self.port,
                                          username=self.username,
